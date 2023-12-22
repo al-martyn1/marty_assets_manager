@@ -25,6 +25,13 @@
 //
 #include "defs.h"
 
+//
+#include "marty_virtual_fs/i_app_paths.h"
+#include "marty_virtual_fs/i_app_paths_common.h"
+#include "marty_virtual_fs/app_paths_impl.h"
+#include "marty_virtual_fs/i_filesystem.h"
+#include "marty_virtual_fs/i_virtual_fs.h"
+
 namespace marty_assets_manager {
 
 
@@ -322,6 +329,25 @@ public:
 
 
 }; // struct IAssetsManager
+
+
+
+inline
+std::shared_ptr<IAssetsManager> makeAssetsManager( std::shared_ptr<marty_virtual_fs::IFileSystem> pFileSystem
+                                                 )
+{
+    auto pAppPaths = std::make_shared<marty_virtual_fs::AppPathsImpl>();
+    std::wstring appName;
+    pAppPaths->getAppName(appName);
+
+    auto pAssetsManager = std::make_shared<marty_assets_manager::AssetsManager>(pFileSystem);
+    pAssetsManager->setProjectName(appName);
+
+    return pAssetsManager;
+}
+
+
+
 
 
 } // namespace marty_assets_manager

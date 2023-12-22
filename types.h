@@ -9,6 +9,9 @@
 #include <vector>
 
 //
+#include "marty_virtual_fs/i_filesystem.h"
+
+//
 //#include "warnings_disable.h"
 
 // #include "marty_simplesquirrel/simplesquirrel.h"
