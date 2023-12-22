@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <unordered_set>
 
 //
 #include "i_assets_manager.h"
@@ -31,6 +32,11 @@
 #include "marty_virtual_fs/app_paths_impl.h"
 #include "marty_virtual_fs/i_filesystem.h"
 #include "marty_virtual_fs/i_virtual_fs.h"
+
+//
+#include "umba/simple_formatter.h"
+
+
 
 namespace marty_assets_manager {
 
@@ -74,11 +80,29 @@ protected:
     }
 
 
+    template<typename StringType>
+    StringType filenameFromText(const std::string &str) const
+    {
+        if constexpr (sizeof(typename StringType::value_type)>1)
+        {
+            return m_pFs->decodeText(str);
+        }
+        else
+        {
+            return str;
+        }
+    }
 
     template<typename StringType>
-    ErrorCode readNutProjectImpl(const StringType &fileName, NutProjectT<StringType> &prj) const
+    ErrorCode readNutProjectImpl( const StringType               &fileName
+                                , NutProjectT<StringType>        &prj
+                                , std::unordered_set<StringType> &loadedProjects
+                                , std::unordered_set<StringType> &loadedNuts
+                                ) const
     {
         static const StringType nutsJsonExt = umba::string_plus::make_string<StringType>(".NUTS.JSON"); // project suffix (double ext)
+        static const StringType jsonExt     = umba::string_plus::make_string<StringType>(".JSON"); // project suffix
+        static const StringType nutExt      = umba::string_plus::make_string<StringType>(".NUT") ; // single file suffix
 
         if (!m_pFs->isFileExistAndReadable(fileName))
         {
@@ -86,12 +110,50 @@ protected:
         }
 
 
-        prj.clear();
-
         StringType fileNameUpper = umba::string_plus::toupper_copy(fileName);
-        if (!umba::string_plus::ends_with(fileNameUpper, nutsJsonExt))
+
+        // Тут варианты такие
+        // Любые .json файлы рассматривать как файл проекта
+        // или именно .nuts.json?
+        // У последнего - красивое имя, но .nuts.lib.json - тоже неплохое расширение для либ, например
+
+        // В то же время readNutProjectCompleteImpl сама проверяет наличие тех или иных файлов, и изначально она сама
+        // пробует загрузить либо .nuts.json, либо просто .nut
+
+        // Наверное, лучше ограничится проверкой расширения на .json, или, скорее, на .nut - это точно отдельный файл
+
+        //
+
+        bool isProjectFile = true;
+
+        #if 0
+        if (loadedProjects.empty())
+        {
+            // это первый файл, он должен быть строго .NUTS.JSON
+            if (!umba::string_plus::ends_with(fileNameUpper, nutsJsonExt))
+            {
+                isProjectFile = false;
+            }
+        }
+        #endif
+
+        if (umba::string_plus::ends_with(fileNameUpper, nutExt))
+        {
+            isProjectFile = false;
+        }
+
+        
+        //if (!umba::string_plus::ends_with(fileNameUpper, nutsJsonExt))
+        if (!isProjectFile)
         {
             // Читаем проект из единственного .nut файла
+
+            if (loadedNuts.find(fileNameUpper)!=loadedNuts.end())
+            {
+                return ErrorCode::ok; // уже есть такой
+            }
+ 
+            loadedNuts.insert(fileNameUpper);
 
             prj.projectFileName = fileName ;
             prj.nuts.emplace_back(fileName);
@@ -113,29 +175,111 @@ protected:
                     return err;
                 }
 
+                //StringType fileNameUpper = umba::string_plus::toupper_copy(fileName);
+                loadedProjects.insert(fileNameUpper);
+
                 auto jConf = readGenericJsonFromUtfString(nutsJsonPrjText);
 
                 auto filesNodeIter = jConf.find("files");
                 if (filesNodeIter!=jConf.end())
                 {
                     auto &jFiles = filesNodeIter.value();
+                    if (!jFiles.is_array())
+                    {
+                        umba::lout << ".nuts.json: 'files' node must be an array\n";
+                        return ErrorCode::invalidFormat;
+                    }
 
                     for (nlohmann::json::iterator jFileIt=jFiles.begin(); jFileIt!=jFiles.end(); ++jFileIt)
                     {
-                        auto str = jFileIt->get<std::string>();
-                        if constexpr (sizeof(typename StringType::value_type)>1)
+                        auto &jFileNode = jFileIt.value();
+
+                        if (jFileNode.is_object()) 
                         {
-                            prj.nuts.emplace_back(m_pFs->normalizeFilename(m_pFs->appendPath(filePath, m_pFs->decodeText(str))));
+                            // разбор импорта
+                            auto includeNodeIter = jFileNode.find("include");
+                            if (includeNodeIter==jFileNode.end())
+                            {
+                               // continue; // Это объект, но там нет include - хз, что это, может ошибка 
+                               return ErrorCode::invalidFormat; // сообщим, что формат некорректный
+                            }
+
+                            auto &jIcludeNode    = includeNodeIter.value();
+
+                            // Импорт может быть как для одного элемента, и тогда нет массива, или для списка элементов
+                            // Но мы всегда сначала собираем всё это в вектор
+                            std::vector<StringType> includeProjectFiles;
+
+                            if (!jIcludeNode.is_array())
+                            {
+                                auto str = jIcludeNode.get<std::string>();
+                                includeProjectFiles.emplace_back(filenameFromText<StringType>(str));
+                            }
+                            else
+                            {
+                                for (nlohmann::json::iterator jIncFileIt=jIcludeNode.begin(); jIncFileIt!=jIcludeNode.end(); ++jIncFileIt)
+                                {
+                                    //auto &jIncFileNode = jIncFileIt.value();
+                                    auto str = jIncFileIt->get<std::string>();
+                                    includeProjectFiles.emplace_back(filenameFromText<StringType>(str));
+                                }
+                            }
+
+                            for(const auto& incPrjFile : includeProjectFiles)
+                            {
+                                auto incPrjFullName = m_pFs->normalizeFilename(m_pFs->appendPath(filePath, incPrjFile));
+                                StringType incPrjFullNameUpper = umba::string_plus::toupper_copy(incPrjFullName);
+
+                                if (loadedProjects.find(incPrjFullNameUpper)!=loadedProjects.end())
+                                {
+                                    continue;
+                                }
+
+                                loadedProjects.insert(incPrjFullNameUpper);
+
+                                NutProjectT<StringType> incPrj;
+                                ErrorCode err2 = readNutProjectImpl(incPrjFullName, incPrj, loadedProjects, loadedNuts);
+                                if (err2!=ErrorCode::ok)
+                                {
+                                    return err2;
+                                }
+
+                                prj.nuts.insert(prj.nuts.end(), incPrj.nuts.begin(), incPrj.nuts.end());
+
+                            }
+
                         }
-                        else
+                        else // single file
                         {
-                            prj.nuts.emplace_back(m_pFs->normalizeFilename(m_pFs->appendPath(filePath, str)));
+                            auto str             = jFileIt->get<std::string>();
+                            auto nutFile         = m_pFs->normalizeFilename(m_pFs->appendPath(filePath, filenameFromText<StringType>(str)));
+                            auto nutFileUpper    = umba::string_plus::toupper_copy(nutFile);
+
+                            if (loadedNuts.find(nutFileUpper)!=loadedNuts.end())
+                            {
+                                continue;
+                            }
+                             
+                            loadedNuts.insert(nutFileUpper);
+
+                            prj.nuts.emplace_back(nutFile);
+                            
+                            // if constexpr (sizeof(typename StringType::value_type)>1)
+                            // {
+                            //     prj.nuts.emplace_back(m_pFs->normalizeFilename(m_pFs->appendPath(filePath, m_pFs->decodeText(str))));
+                            // }
+                            // else
+                            // {
+                            //     prj.nuts.emplace_back(m_pFs->normalizeFilename(m_pFs->appendPath(filePath, str)));
+                            // }
+                           
+                            if (!m_pFs->isFileExistAndReadable(prj.nuts.back()))
+                            {
+                                umba::lout << "Missing file '" << m_pFs->encodeFilename(prj.nuts.back()) << "\n";
+                                return ErrorCode::missingFiles;
+                            }
                         }
 
-                        if (!m_pFs->isFileExistAndReadable(prj.nuts.back()))
-                        {
-                            return ErrorCode::missingFiles;
-                        }
                     }
                 }
 
@@ -146,7 +290,8 @@ protected:
             {
                 // Заллогировать
                 // e.what()
-                MARTY_ASSMAN_ARG_USED(e);
+                //MARTY_ASSMAN_ARG_USED(e);
+                umba::lout << "Failed to read nut project '" << m_pFs->encodeFilename(fileName) << "': " << e.what() << "\n";
 
                 return ErrorCode::unknownFormat;
                 // ErrorCode::invalidFormat;
@@ -191,19 +336,21 @@ protected:
         StringType fullNameNutJson = m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nuts.json"));
         StringType fullNameNut     = m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nut"));
 
-
-        err = readNutProjectImpl(fullNameNutJson, prj);
+        std::unordered_set<StringType> loadedProjects;
+        std::unordered_set<StringType> loadedNuts    ;
+        err = readNutProjectImpl(fullNameNutJson, prj, loadedProjects, loadedNuts);
         if ( err==ErrorCode::missingFiles  // не все файлы в проекте реально существуют
-          || err==ErrorCode::unknownFormat // проект есть, но ошибка формата
+          || err==ErrorCode::invalidFormat // проект есть, но ошибка формата/синтаксиса файла JSON/YAML
+          || err==ErrorCode::unknownFormat // проект есть, но ошибка формата, не JSON/YAML
            )
         {
-            // Файл проекта есть, но там ошибка
+            // Файл проекта есть, но там ошибка - отдельный nut файл не пытаемся читать - у нас есть файл проекта, просто там косяк
             return err;
         }
 
         if (err!=ErrorCode::ok)
         {
-            err = readNutProjectImpl(fullNameNut, prj);
+            err = readNutProjectImpl(fullNameNut, prj, loadedProjects, loadedNuts);
         }
 
         if (err!=ErrorCode::ok)
@@ -294,12 +441,18 @@ public:
 
     virtual ErrorCode readNutProject(const std::string  &fileName, NutProjectA &prj) const override
     {
-        return readNutProjectImpl(fileName, prj);
+        std::unordered_set<std::string> loadedProjects;
+        std::unordered_set<std::string> loadedNuts;
+        prj.clear();
+        return readNutProjectImpl(fileName, prj, loadedProjects, loadedNuts);
     }
 
     virtual ErrorCode readNutProject(const std::wstring &fileName, NutProjectW &prj) const override
     {
-        return readNutProjectImpl(fileName, prj);
+        std::unordered_set<std::wstring> loadedProjects;
+        std::unordered_set<std::wstring> loadedNuts;
+        prj.clear();
+        return readNutProjectImpl(fileName, prj, loadedProjects, loadedNuts);
     }
 
 
