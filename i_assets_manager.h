@@ -16,6 +16,8 @@
 
 //
 #include "marty_virtual_fs/i_filesystem.h"
+//
+#include "enums.h"
 
 
 namespace marty_assets_manager {
@@ -25,6 +27,9 @@ namespace marty_assets_manager {
 struct IAssetsManager
 {
     virtual ~IAssetsManager() {}
+
+    virtual NutType detectFileNutType(const std::string  &fname) const = 0;
+    virtual NutType detectFileNutType(const std::wstring &fname) const = 0;
 
     virtual ErrorCode setProjectName(const std::string  &projectName) = 0;
     virtual ErrorCode setProjectName(const std::wstring &projectName) = 0;
@@ -43,6 +48,10 @@ struct IAssetsManager
     // Чтение проекта (из одного nut-файла или из файла проекта), а также всех nut-файлов
     virtual ErrorCode readNutProjectComplete(NutProjectA &prj) const = 0;
     virtual ErrorCode readNutProjectComplete(NutProjectW &prj) const = 0;
+
+    virtual ErrorCode readAppSelectorManifest(NutAppSelectorManifestA &appSel) const = 0;
+    virtual ErrorCode readAppSelectorManifest(NutAppSelectorManifestW &appSel) const = 0;
+
 
 
     // Чтение manifest'а

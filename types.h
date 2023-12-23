@@ -10,6 +10,8 @@
 
 //
 #include "marty_virtual_fs/i_filesystem.h"
+//
+#include "enums.h"
 
 
 //----------------------------------------------------------------------------
@@ -72,7 +74,40 @@ struct NutManifestT
 
 };
 
+//----------------------------------------------------------------------------
 
+
+
+//----------------------------------------------------------------------------
+template<typename StringType>
+struct NutAppSelectorManifestItemT
+{
+    StringType    appTitle;
+    StringType    appName ;
+
+}; // struct NutAppSelectorManifestItemT
+
+//------------------------------
+typedef NutAppSelectorManifestItemT<std::string>     NutAppSelectorManifestItemA;
+typedef NutAppSelectorManifestItemT<std::wstring>    NutAppSelectorManifestItemW;
+
+//----------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
+template<typename StringType>
+struct NutAppSelectorManifestT
+{
+    std::vector< NutAppSelectorManifestItemT<StringType> >  manifestItems;
+
+}; // struct NutAppSelectorManifestT
+
+//------------------------------
+typedef NutAppSelectorManifestT<std::string>     NutAppSelectorManifestA;
+typedef NutAppSelectorManifestT<std::wstring>    NutAppSelectorManifestW;
+
+//----------------------------------------------------------------------------
 
 
 

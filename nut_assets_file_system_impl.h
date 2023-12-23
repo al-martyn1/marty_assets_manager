@@ -56,6 +56,13 @@ void configureNutAssetsFilesystem(marty_virtual_fs::IAppPaths *pAppPaths, marty_
         pVirtualFs->addMountPointEx(manifestFileName, manifestFullName, marty_virtual_fs::FileTypeFlags::normalFile);
     }
 
+    std::wstring appSelectorManifestFileName = umba::string_plus::make_string<std::wstring>("dotnut.app-selector.manifest.json");    
+    std::wstring appSelectorManifestFullName = umba::filename::appendPath(appRootPath, appSelectorManifestFileName);
+    if (umba::filesys::isFileReadable(appSelectorManifestFullName))
+    {
+        pVirtualFs->addMountPointEx(appSelectorManifestFileName, appSelectorManifestFullName, marty_virtual_fs::FileTypeFlags::normalFile);
+    }
+
 }
 
 //----------------------------------------------------------------------------
