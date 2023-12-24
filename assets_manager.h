@@ -96,46 +96,70 @@ protected:
     template<typename StringType>
     NutType detectFileNutTypeImpl(const StringType &fname) const
     {
-        static const StringType nutsJsnProjExt1  = umba::string_plus::make_string<StringType>(".NUTSJSNPROJ"); // project suffix
-        static const StringType nutsJsnProjExt2  = umba::string_plus::make_string<StringType>(".NUTJSNPROJ"); // project suffix
-        static const StringType nutsJsonExt      = umba::string_plus::make_string<StringType>(".NUTS.JSON"); // project suffix (double ext)
-
-        static const StringType appSelectorExt   = umba::string_plus::make_string<StringType>("DOTNUT.APP-SELECTOR.MANIFEST.JSON");
-
-        static const StringType manifestExt1     = umba::string_plus::make_string<StringType>(".DOTNUT-MANIFEST.JSON");
-        static const StringType manifestExt2     = umba::string_plus::make_string<StringType>(".MANIFEST.JSON");
-
-        static const StringType jsonExt          = umba::string_plus::make_string<StringType>(".JSON"); // project suffix
-
-        static const StringType nutExt           = umba::string_plus::make_string<StringType>(".NUT") ; // single file suffix
-
-
         StringType fnameUpper = umba::string_plus::toupper_copy(fname);
 
 
-        if ( umba::string_plus::ends_with(fnameUpper, nutsJsnProjExt1)
-          || umba::string_plus::ends_with(fnameUpper, nutsJsnProjExt2)
-          || umba::string_plus::ends_with(fnameUpper, nutsJsonExt)
-           )
-        {
-            return NutType::dotNutProject;
-        }
+        static const StringType nutExt           = umba::string_plus::make_string<StringType>(".NUT") ; // single file suffix
 
         if (umba::string_plus::ends_with(fnameUpper, nutExt))
         {
             return NutType::nutFile;
         }
 
-        if (umba::string_plus::ends_with(fnameUpper, appSelectorExt))
+
+        static const StringType nutsJsnProjExt1  = umba::string_plus::make_string<StringType>(".NUTSJSNPROJ"); // project suffix
+        static const StringType nutsJsnProjExt2  = umba::string_plus::make_string<StringType>(".NUTJSNPROJ"); // project suffix
+        static const StringType nutsJsonExt      = umba::string_plus::make_string<StringType>(".NUTS.JSON"); // project suffix (double ext)
+
+        static const StringType nutsYmlProjExt1  = umba::string_plus::make_string<StringType>(".NUTSYMLPROJ"); // project suffix
+        static const StringType nutsYmlProjExt2  = umba::string_plus::make_string<StringType>(".NUTYMLPROJ"); // project suffix
+        static const StringType nutsYamlExt      = umba::string_plus::make_string<StringType>(".NUTS.YAML"); // project suffix (double ext)
+
+        if ( umba::string_plus::ends_with(fnameUpper, nutsJsnProjExt1)
+          || umba::string_plus::ends_with(fnameUpper, nutsJsnProjExt2)
+          || umba::string_plus::ends_with(fnameUpper, nutsJsonExt)
+          || umba::string_plus::ends_with(fnameUpper, nutsYmlProjExt1)
+          || umba::string_plus::ends_with(fnameUpper, nutsYmlProjExt2)
+          || umba::string_plus::ends_with(fnameUpper, nutsYamlExt)
+           )
+        {
+            return NutType::dotNutProject;
+        }
+
+
+        static const StringType appSelectorExtJ  = umba::string_plus::make_string<StringType>("DOTNUT.APP-SELECTOR.MANIFEST.JSON");
+        static const StringType appSelectorExtY  = umba::string_plus::make_string<StringType>("DOTNUT.APP-SELECTOR.MANIFEST.YAML");
+
+        if ( umba::string_plus::ends_with(fnameUpper, appSelectorExtJ)
+          || umba::string_plus::ends_with(fnameUpper, appSelectorExtY)
+           )
         {
             return NutType::dotNutAppSelector;
         }
 
+
+        static const StringType manifestExt1     = umba::string_plus::make_string<StringType>(".DOTNUT-MANIFEST.JSON");
+        static const StringType manifestExt2     = umba::string_plus::make_string<StringType>(".MANIFEST.JSON");
+        static const StringType manifestExt3     = umba::string_plus::make_string<StringType>(".DOTNUT-MANIFEST.YAML");
+        static const StringType manifestExt4     = umba::string_plus::make_string<StringType>(".MANIFEST.YAML");
+
         if ( umba::string_plus::ends_with(fnameUpper, manifestExt1)
           || umba::string_plus::ends_with(fnameUpper, manifestExt2)
+          || umba::string_plus::ends_with(fnameUpper, manifestExt3)
+          || umba::string_plus::ends_with(fnameUpper, manifestExt4)
            )
         {
             return NutType::dotNutManifect;
+        }
+
+        static const StringType jsonExt          = umba::string_plus::make_string<StringType>(".JSON"); // project suffix
+        static const StringType yamlExt          = umba::string_plus::make_string<StringType>(".YAML"); // project suffix
+
+        if ( umba::string_plus::ends_with(fnameUpper, jsonExt)
+          || umba::string_plus::ends_with(fnameUpper, yamlExt)
+           )
+        {
+            return NutType::dotNutProject;
         }
 
         return NutType::unknownNutType;
@@ -492,6 +516,11 @@ protected:
         StringType fullNameNutJson1 = m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nutsjsnproj"));
         StringType fullNameNutJson2 = m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nutjsnproj"));
         StringType fullNameNutJson3 = m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nuts.json"));
+        StringType fullNameNutJson4 = m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nuts.jsn"));
+        StringType fullNameNutYaml1 = m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nutsymlproj"));
+        StringType fullNameNutYaml2 = m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nutymlproj"));
+        StringType fullNameNutYaml3 = m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nuts.yaml"));
+        StringType fullNameNutYaml4 = m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nuts.yml"));
         StringType fullNameNut      = m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nut"));
 
         std::unordered_set<StringType> loadedProjects;
@@ -527,6 +556,58 @@ protected:
             return err;
         }
 
+        err = readNutProjectImpl(fullNameNutJson4, prj, loadedProjects, loadedNuts);
+        if ( err==ErrorCode::missingFiles  // не все файлы в проекте реально существуют
+          || err==ErrorCode::invalidFormat // проект есть, но ошибка формата/синтаксиса файла JSON/YAML
+          || err==ErrorCode::unknownFormat // проект есть, но ошибка формата, не JSON/YAML
+           )
+        {
+            // Файл проекта есть, но там ошибка - отдельный nut файл не пытаемся читать - у нас есть файл проекта, просто там косяк
+            return err;
+        }
+
+        err = readNutProjectImpl(fullNameNutYaml1, prj, loadedProjects, loadedNuts);
+        if ( err==ErrorCode::missingFiles  // не все файлы в проекте реально существуют
+          || err==ErrorCode::invalidFormat // проект есть, но ошибка формата/синтаксиса файла JSON/YAML
+          || err==ErrorCode::unknownFormat // проект есть, но ошибка формата, не JSON/YAML
+           )
+        {
+            // Файл проекта есть, но там ошибка - отдельный nut файл не пытаемся читать - у нас есть файл проекта, просто там косяк
+            return err;
+        }
+
+        err = readNutProjectImpl(fullNameNutYaml2, prj, loadedProjects, loadedNuts);
+        if ( err==ErrorCode::missingFiles  // не все файлы в проекте реально существуют
+          || err==ErrorCode::invalidFormat // проект есть, но ошибка формата/синтаксиса файла JSON/YAML
+          || err==ErrorCode::unknownFormat // проект есть, но ошибка формата, не JSON/YAML
+           )
+        {
+            // Файл проекта есть, но там ошибка - отдельный nut файл не пытаемся читать - у нас есть файл проекта, просто там косяк
+            return err;
+        }
+
+        err = readNutProjectImpl(fullNameNutYaml3, prj, loadedProjects, loadedNuts);
+        if ( err==ErrorCode::missingFiles  // не все файлы в проекте реально существуют
+          || err==ErrorCode::invalidFormat // проект есть, но ошибка формата/синтаксиса файла JSON/YAML
+          || err==ErrorCode::unknownFormat // проект есть, но ошибка формата, не JSON/YAML
+           )
+        {
+            // Файл проекта есть, но там ошибка - отдельный nut файл не пытаемся читать - у нас есть файл проекта, просто там косяк
+            return err;
+        }
+
+        err = readNutProjectImpl(fullNameNutYaml4, prj, loadedProjects, loadedNuts);
+        if ( err==ErrorCode::missingFiles  // не все файлы в проекте реально существуют
+          || err==ErrorCode::invalidFormat // проект есть, но ошибка формата/синтаксиса файла JSON/YAML
+          || err==ErrorCode::unknownFormat // проект есть, но ошибка формата, не JSON/YAML
+           )
+        {
+            // Файл проекта есть, но там ошибка - отдельный nut файл не пытаемся читать - у нас есть файл проекта, просто там косяк
+            return err;
+        }
+
+
+        
         if (err!=ErrorCode::ok)
         {
             err = readNutProjectImpl(fullNameNut, prj, loadedProjects, loadedNuts);
@@ -541,6 +622,157 @@ protected:
 
     }
 
+    // void updateNutManifestGraphics(nlohmann::json j)
+    // nlohmann::json
+
+    template<typename StringType>
+    ErrorCode updateNutManifestImpl(const StringType &fileName, NutManifestT<StringType> &manifest) const
+    {
+        //MARTY_ASSMAN_ARG_USED(fileName);
+        MARTY_ASSMAN_ARG_USED(manifest);
+
+        std::string maifestText;
+        ErrorCode err = m_pFs->readTextFile(fileName, maifestText);
+        if (err!=ErrorCode::ok)
+        {
+            return err;
+        }
+
+        try
+        {
+            auto jManifest = readGenericJsonFromUtfString(maifestText);
+
+            auto 
+            jiter = jManifest.find("appGroup");
+            if (jiter!=jManifest.end())
+            {
+                std::string strAppGroup = jiter->get<std::string>();
+                manifest.appGroup = filenameFromText<StringType>(strAppGroup);
+            }
+
+            jiter = jManifest.find("graphicsMode");
+            if (jiter!=jManifest.end())
+            {
+                std::string strMode = jiter->get<std::string>();
+                auto newVal = enum_deserialize_NutManifestGraphicsMode(strMode, NutManifestGraphicsMode::invalid);
+                if (newVal!=NutManifestGraphicsMode::invalid)
+                {
+                    manifest.manifestGraphicsMode = newVal;
+                }
+            }
+
+            jiter = jManifest.find("hotkeys");
+            if (jiter!=jManifest.end())
+            {
+                auto jHotkeys = jiter.value();
+
+                if (jHotkeys.is_object())
+                {
+                    jiter = jHotkeys.find("allowReloadScript");
+                    if (jiter!=jHotkeys.end())
+                    {
+                        manifest.hotkeysManifest.allowReloadScript = jiter->get<bool>();
+                    }
+                    jiter = jHotkeys.find("allowFullscreen");
+                    if (jiter!=jHotkeys.end())
+                    {
+                        manifest.hotkeysManifest.allowFullscreen = jiter->get<bool>();
+                    }
+                }
+            }
+
+            jiter = jManifest.find("startup");
+            if (jiter!=jManifest.end())
+            {
+                auto jStartup = jiter.value();
+
+                if (jStartup.is_object())
+                {
+                    jiter = jStartup.find("runFullscreen");
+                    if (jiter!=jStartup.end())
+                    {
+                        manifest.startupManifest.runFullscreen = jiter->get<bool>();
+                    }
+                }
+            }
+
+
+#if 0
+            ///
+            auto appListNodeIter = jConf.find("app-list");
+            if (appListNodeIter==jConf.end())
+            {
+                return ErrorCode::notFound;
+            }
+    
+            auto &jAppListNode = appListNodeIter.value();
+            if (!jAppListNode.is_array())
+            {
+                return ErrorCode::invalidFormat;
+            }
+    
+            appSel.manifestItems.clear();
+    
+            for (nlohmann::json::iterator jAppListItemsIt=jAppListNode.begin(); jAppListItemsIt!=jAppListNode.end(); ++jAppListItemsIt)
+            {
+                // title/app-name
+                auto jAppNameIter = jAppListItemsIt->find("app-name");
+                if (jAppNameIter==jAppListItemsIt->end())
+                {
+                    continue;
+                }
+    
+                try
+                {
+                    std::string strAppName           = jAppNameIter->get<std::string>();
+                    StringType  strAppNameStringType = filenameFromText<StringType>(strAppName);
+                    if (strAppNameStringType.empty())
+                    {
+                        continue;
+                    }
+
+
+            ///
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+        catch(const std::exception &e)
+        {
+            umba::lout << "Failed to read 'dotnut.app-selector.manifest.json': " << e.what() << "\n";
+            umba::lout.flush();
+            return ErrorCode::invalidFormat;
+        }
+        catch(...)
+        {
+            umba::lout << "Failed to read 'dotnut.app-selector.manifest.json': " << "unknown error" << "\n";
+            umba::lout.flush();
+            return ErrorCode::invalidFormat;
+        }
+
+        return ErrorCode::ok;
+        
+    }
+
+    template<typename StringType>
+    ErrorCode updateNutManifestImpl(NutManifestT<StringType> &manifest) const
+    {
+        MARTY_ASSMAN_ARG_USED(manifest);
+
+        return ErrorCode::ok;
+    }
 
 
 #if 0
@@ -675,6 +907,27 @@ public:
     {
         return readAppSelectorManifestImpl(appSel);
     }
+
+    virtual ErrorCode updateNutManifest(const std::string  &fileName, NutManifestA &manifest) const override
+    {
+        return updateNutManifestImpl(fileName, manifest);
+    }
+
+    virtual ErrorCode updateNutManifest(const std::wstring &fileName, NutManifestW &manifest) const override
+    {
+        return updateNutManifestImpl(fileName, manifest);
+    }
+
+    virtual ErrorCode updateNutManifest(NutManifestA &manifest) const override
+    {
+        return updateNutManifestImpl(manifest);
+    }
+
+    virtual ErrorCode updateNutManifest(NutManifestW &manifest) const override
+    {
+        return updateNutManifestImpl(manifest);
+    }
+
 
 
 

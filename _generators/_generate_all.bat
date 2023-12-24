@@ -29,8 +29,12 @@
 @set NUTTYPE_GEN_FLAGS=--enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL%
 @set NUTTYPE_DEF=invalid,unknown=-1;unknownNutType=0;nutFile=1;dotNutProject;dotNutManifect;dotNutAppSelector;
 
+@set MANIFESTGRAPHICSMODE_GEN_FLAGS=--enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL%
+@set MANIFESTGRAPHICSMODE_DEF=invalid,unknown=-1;prefferSpeed=0;prefferQuality
+
 
 umba-enum-gen %GEN_OPTS% %HEX2% %TPL_OVERRIDE% ^
+%MANIFESTGRAPHICSMODE_GEN_FLAGS%        %UINT32% -E=NutManifestGraphicsMode           -F=%MANIFESTGRAPHICSMODE_DEF%     ^
 %NUTTYPE_GEN_FLAGS%                     %UINT32% -E=NutType                           -F=%NUTTYPE_DEF%                  ^
 ..\enums.h
 

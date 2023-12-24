@@ -52,6 +52,15 @@ struct IAssetsManager
     virtual ErrorCode readAppSelectorManifest(NutAppSelectorManifestA &appSel) const = 0;
     virtual ErrorCode readAppSelectorManifest(NutAppSelectorManifestW &appSel) const = 0;
 
+    // Идея в том, что есть манифест по дефолту, и все файлы манифеста только обновляют уже существующий манифест
+    // Это нужно, чтобы пользователь мог написать свой манифест и обновить/заменить прошитый в аппу
+    virtual ErrorCode updateNutManifest(const std::string  &fileName, NutManifestA &manifest) const = 0;
+    virtual ErrorCode updateNutManifest(const std::wstring &fileName, NutManifestW &manifest) const = 0;
+
+    // Обновляем манифест из дефолтного месторасположения
+    virtual ErrorCode updateNutManifest(NutManifestA &manifest) const = 0;
+    virtual ErrorCode updateNutManifest(NutManifestW &manifest) const = 0;
+
 
 
     // Чтение manifest'а

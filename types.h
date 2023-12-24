@@ -12,6 +12,15 @@
 #include "marty_virtual_fs/i_filesystem.h"
 //
 #include "enums.h"
+//
+#include "umba/string_plus.h"
+
+//
+#include "nlohmann/json.hpp"
+#include "marty_yaml_toml_json/json_utils.h"
+#include "marty_yaml_toml_json/yaml_json.h"
+#include "marty_cpp/marty_cpp_exceptions.h"
+
 
 
 //----------------------------------------------------------------------------
@@ -60,19 +69,85 @@ typedef NutProjectT<std::wstring>    NutProjectW;
 
 
 
+
+//----------------------------------------------------------------------------
+template<typename StringType>
+struct NutFilesystemManifestMountPointInfoT
+{
+    StringType    mountPointName;
+    StringType    mountPointTargetPath;  // Мы сами можем определить, является ли таргет каталогом или файлом
+
+    // static
+    // NutFilesystemManifestMountPointInfoT<StringType> fromJsonNode(nlohmann::json &j)
+    // {
+    //     NutFilesystemManifestMountPointInfoT<StringType>
+    // }
+};
+
+
+//----------------------------------------------------------------------------
+template<typename StringType>
+struct NutFilesystemManifestT
+{
+    bool       mountLocalFilesystem = true;
+
+    bool       mountHome            = true;
+    StringType homeMountPointName   = umba::string_plus::make_string<StringType>("~Home");
+
+    bool       mountTemp            = true;
+    StringType tempMountPointName   = umba::string_plus::make_string<StringType>("$Temp");
+
+    bool       mountLogs            = true;
+    StringType logsMountPointName   = umba::string_plus::make_string<StringType>(".Logs");
+
+    std::vector< NutFilesystemManifestMountPointInfoT<StringType> > customMountPoints;
+
+}; // struct NutFilesystemManifestT
+
+//----------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
+struct NutStartupManifest
+{
+    bool runFullscreen = false;
+
+}; // struct NutStartupManifest
+
+//----------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
+struct NutHotkeysManifest
+{
+    bool allowReloadScript = true;
+    bool allowFullscreen   = true;
+
+}; // struct NutStartupManifest
+
+//----------------------------------------------------------------------------
+
+
+
 //----------------------------------------------------------------------------
 template<typename StringType>
 struct NutManifestT
 {
-    // Что тут нужно
+    // IAppPathsCommon::setAppCommonHomeSubPath - Глобально на всё приложение для всех экземпляров приложения
+    StringType                           appGroup          ;
+    NutManifestGraphicsMode              manifestGraphicsMode  = NutManifestGraphicsMode::prefferSpeed;
 
-    // F11
-    // F5
-
-    // Что и как монтировать
-
+    NutHotkeysManifest                   hotkeysManifest   ;
+    NutStartupManifest                   startupManifest   ;
+    NutFilesystemManifestT<StringType>   filesystemManifest;
 
 };
+
+//------------------------------
+typedef NutManifestT<std::string>        NutManifestA;
+typedef NutManifestT<std::wstring>       NutManifestW;
 
 //----------------------------------------------------------------------------
 
