@@ -351,6 +351,7 @@ protected:
                 //MARTY_ASSMAN_ARG_USED(e);
                 //umba::lout << "Failed to read nut project '" << m_pFs->encodeFilename(fileName) << "': " << e.what() << "\n";
                 umba::lout << "Failed to read nut project '" << m_pFs->encodeText(fileName) << "': " << e.what() << "\n";
+                umba::lout.flush();
 
                 return ErrorCode::unknownFormat;
                 // ErrorCode::invalidFormat;
@@ -397,64 +398,82 @@ protected:
             return err;
         }
 
-
-        auto jConf = readGenericJsonFromUtfString(nutsJsonPrjText);
-
-        auto appListNodeIter = jConf.find("app-list");
-        if (appListNodeIter==jConf.end())
+        try
         {
-            return ErrorCode::notFound;
-        }
-
-        auto &jAppListNode = appListNodeIter.value();
-        if (!jAppListNode.is_array())
-        {
-            return ErrorCode::invalidFormat;
-        }
-
-        appSel.manifestItems.clear();
-
-        for (nlohmann::json::iterator jAppListItemsIt=jAppListNode.begin(); jAppListItemsIt!=jAppListNode.end(); ++jAppListItemsIt)
-        {
-            // title/app-name
-            auto jAppNameIter = jAppListItemsIt->find("app-name");
-            if (jAppNameIter==jAppListItemsIt->end())
+            auto jConf = readGenericJsonFromUtfString(nutsJsonPrjText);
+    
+            auto appListNodeIter = jConf.find("app-list");
+            if (appListNodeIter==jConf.end())
             {
-                continue;
+                return ErrorCode::notFound;
             }
-
-            try
+    
+            auto &jAppListNode = appListNodeIter.value();
+            if (!jAppListNode.is_array())
             {
-                std::string strAppName           = jAppNameIter->get<std::string>();
-                StringType  strAppNameStringType = filenameFromText<StringType>(strAppName);
-                if (strAppNameStringType.empty())
+                return ErrorCode::invalidFormat;
+            }
+    
+            appSel.manifestItems.clear();
+    
+            for (nlohmann::json::iterator jAppListItemsIt=jAppListNode.begin(); jAppListItemsIt!=jAppListNode.end(); ++jAppListItemsIt)
+            {
+                // title/app-name
+                auto jAppNameIter = jAppListItemsIt->find("app-name");
+                if (jAppNameIter==jAppListItemsIt->end())
                 {
                     continue;
                 }
-
-                std::string strAppTitle;
-                auto jAppTitleIter = jAppListItemsIt->find("title");
-                if (jAppTitleIter!=jAppListItemsIt->end())
+    
+                try
                 {
-                    strAppTitle = jAppTitleIter->get<std::string>();
+                    std::string strAppName           = jAppNameIter->get<std::string>();
+                    StringType  strAppNameStringType = filenameFromText<StringType>(strAppName);
+                    if (strAppNameStringType.empty())
+                    {
+                        continue;
+                    }
+    
+                    std::string strAppTitle;
+                    auto jAppTitleIter = jAppListItemsIt->find("title");
+                    if (jAppTitleIter!=jAppListItemsIt->end())
+                    {
+                        strAppTitle = jAppTitleIter->get<std::string>();
+                    }
+    
+                    StringType strAppTitleStringType = filenameFromText<StringType>(strAppTitle);
+                    if (strAppTitleStringType.empty())
+                    {
+                        strAppTitleStringType = strAppNameStringType;
+                    }
+    
+                    appSel.manifestItems.emplace_back(NutAppSelectorManifestItemT<StringType>{strAppTitleStringType, strAppNameStringType});
                 }
-
-                StringType strAppTitleStringType = filenameFromText<StringType>(strAppTitle);
-                if (strAppTitleStringType.empty())
+                catch(const std::exception &e)
                 {
-                    strAppTitleStringType = strAppNameStringType;
+                    MARTY_ASSMAN_ARG_USED(e);
                 }
-
-                appSel.manifestItems.emplace_back(NutAppSelectorManifestItemT<StringType>{strAppTitleStringType, strAppNameStringType});
+                catch(...)
+                {
+                }
+                
             }
-            catch(...)
-            {
-            }
-            
+    
+        }
+        catch(const std::exception &e)
+        {
+            umba::lout << "Failed to read 'dotnut.app-selector.manifest.json': " << e.what() << "\n";
+            umba::lout.flush();
+            return ErrorCode::invalidFormat;
+        }
+        catch(...)
+        {
+            umba::lout << "Failed to read 'dotnut.app-selector.manifest.json': " << "unknown error" << "\n";
+            umba::lout.flush();
+            return ErrorCode::invalidFormat;
         }
 
         return ErrorCode::ok;
-
     }
 
     template<typename StringType>
