@@ -45,6 +45,7 @@ void configureNutAssetsFilesystem(marty_virtual_fs::IAppPaths *pAppPaths, marty_
     pVirtualFs->addMountPoint(L"assets"         , pVirtualFs->appendPath(appRootPath, L"assets"      ));
     pVirtualFs->addMountPoint(L"translations"   , pVirtualFs->appendPath(appRootPath, L"translations"));
 
+    /*
     std::wstring appName;
     pAppPaths->getAppName(appName);
 
@@ -55,6 +56,13 @@ void configureNutAssetsFilesystem(marty_virtual_fs::IAppPaths *pAppPaths, marty_
     {
         pVirtualFs->addMountPointEx(manifestFileName, manifestFullName, marty_virtual_fs::FileTypeFlags::normalFile);
     }
+    */
+
+    // На данном этапе мы ещё не знаем, какая аппа будет запущена
+    // Поэтому просто сделать линк на манифест, соответствующй EXE-шнику - не вариант
+    // У нас появился App Selector и имя апликухи может быть задано там
+    pVirtualFs->addMountPoint(L"manifests"      , pVirtualFs->appendPath(appRootPath, L"manifests"));
+
 
     std::wstring appSelectorManifestFileName = umba::string_plus::make_string<std::wstring>("dotnut.app-selector.manifest.json");    
     std::wstring appSelectorManifestFullName = umba::filename::appendPath(appRootPath, appSelectorManifestFileName);
