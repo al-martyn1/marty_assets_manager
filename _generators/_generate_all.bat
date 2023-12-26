@@ -32,9 +32,13 @@
 @set MANIFESTGRAPHICSMODE_GEN_FLAGS=--enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL%
 @set MANIFESTGRAPHICSMODE_DEF=invalid,unknown=-1;prefferSpeed=0;prefferQuality
 
+@set MANIFESTSIZEUNITS_GEN_FLAGS=--enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL%
+@set MANIFESTSIZEUNITS_DEF=invalid,unknown=-1;px=0;dbu=1
+
 
 umba-enum-gen %GEN_OPTS% %HEX2% %TPL_OVERRIDE% ^
 %MANIFESTGRAPHICSMODE_GEN_FLAGS%        %UINT32% -E=NutManifestGraphicsMode           -F=%MANIFESTGRAPHICSMODE_DEF%     ^
 %NUTTYPE_GEN_FLAGS%                     %UINT32% -E=NutType                           -F=%NUTTYPE_DEF%                  ^
+%MANIFESTSIZEUNITS_GEN_FLAGS%           %UINT32% -E=NutManifestSizeUnits              -F=%MANIFESTSIZEUNITS_DEF%        ^
 ..\enums.h
 

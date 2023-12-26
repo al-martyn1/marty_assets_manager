@@ -65,6 +65,19 @@ protected:
         }
     }
 
+    template<typename StringType>
+    StringType decodeText(const std::string &str) const
+    {
+        if constexpr (sizeof(typename StringType::value_type)>1)
+        {
+            return m_pFs->decodeText(str);
+        }
+        else
+        {
+            return str;
+        }
+    }
+
 
     nlohmann::json readGenericJsonFromUtfString( const std::string &jsonStr
                                                , const std::string &fileName
@@ -630,6 +643,21 @@ protected:
                 if (newVal!=NutManifestGraphicsMode::invalid)
                 {
                     manifest.manifestGraphicsMode = newVal;
+                }
+            }
+
+            jiter = jManifest.find("window");
+            if (jiter!=jManifest.end())
+            {
+                auto jWindow = jiter.value();
+                if (jWindow.is_object())
+                {
+                    jiter = jWindow.find("title");
+                    if (jiter!=jWindow.end())
+                    {
+                        std::string str = jiter->get<std::string>();
+                        manifest.window.title = decodeText<StringType>(str);
+                    }
                 }
             }
 

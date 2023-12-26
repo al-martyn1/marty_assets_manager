@@ -66,5 +66,28 @@ MARTY_CPP_ENUM_CLASS_DESERIALIZE_BEGIN( NutType, std::map, 1 )
     MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutType::dotNutAppSelector   , "dotnutappselector" );
 MARTY_CPP_ENUM_CLASS_DESERIALIZE_END( NutType, std::map, 1 )
 
+
+enum class NutManifestSizeUnits : std::uint32_t
+{
+    invalid   = (std::uint32_t)(-1),
+    unknown   = (std::uint32_t)(-1),
+    px        = 0x00,
+    dbu       = 0x01
+
+}; // enum class NutManifestSizeUnits : std::uint32_t
+
+MARTY_CPP_ENUM_CLASS_SERIALIZE_BEGIN( NutManifestSizeUnits, std::map, 1 )
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( NutManifestSizeUnits::invalid   , "Invalid" );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( NutManifestSizeUnits::px        , "Px"      );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( NutManifestSizeUnits::dbu       , "Dbu"     );
+MARTY_CPP_ENUM_CLASS_SERIALIZE_END( NutManifestSizeUnits, std::map, 1 )
+
+MARTY_CPP_ENUM_CLASS_DESERIALIZE_BEGIN( NutManifestSizeUnits, std::map, 1 )
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::invalid   , "invalid" );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::invalid   , "unknown" );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::px        , "px"      );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::dbu       , "dbu"     );
+MARTY_CPP_ENUM_CLASS_DESERIALIZE_END( NutManifestSizeUnits, std::map, 1 )
+
 } // namespace marty_assets_manager
 

@@ -109,6 +109,21 @@ struct NutFilesystemManifestT
 
 
 //----------------------------------------------------------------------------
+template<typename StringType>
+struct NutWindowManifestT
+{
+    StringType title;
+
+}; // struct NutFilesystemManifestT
+
+typedef NutWindowManifestT<std::string>   NutWindowManifestA;
+typedef NutWindowManifestT<std::wstring>  NutWindowManifestW;
+
+//----------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
 struct NutStartupManifest
 {
     bool runFullscreen = false;
@@ -140,6 +155,8 @@ struct NutManifestT
 
     StringType                           appGroup          ;
     NutManifestGraphicsMode              manifestGraphicsMode  = NutManifestGraphicsMode::prefferSpeed;
+
+    NutWindowManifestT<StringType>       window            ;
 
     NutHotkeysManifest                   hotkeysManifest   ;
     NutStartupManifest                   startupManifest   ;
