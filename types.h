@@ -136,6 +136,8 @@ template<typename StringType>
 struct NutManifestT
 {
     // IAppPathsCommon::setAppCommonHomeSubPath - Глобально на всё приложение для всех экземпляров приложения
+    StringType                           manifectFileName  ;
+
     StringType                           appGroup          ;
     NutManifestGraphicsMode              manifestGraphicsMode  = NutManifestGraphicsMode::prefferSpeed;
 
