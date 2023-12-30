@@ -608,6 +608,19 @@ protected:
     // void updateNutManifestGraphics(nlohmann::json j)
     // nlohmann::json
 
+    nlohmann::json::iterator findJsonAnyChild(nlohmann::json &j, const std::string &n1) const
+    {
+        return j.find(n1.c_str());
+    }
+
+    nlohmann::json::iterator findJsonAnyChild(nlohmann::json &j, const std::string &n1, const std::string &n2) const
+    {
+        auto iter = j.find(n1.c_str());
+        if (iter==j.end())
+            iter = j.find(n2.c_str());
+        return iter;
+    }
+
     template<typename StringType>
     ErrorCode updateNutManifestImpl(const StringType &fileName, NutManifestT<StringType> &manifest) const
     {
@@ -623,19 +636,21 @@ protected:
 
         try
         {
-            manifest.manifectFileName = fileName;
+            manifest.manifestFileName = fileName;
 
             auto jManifest = readGenericJsonFromUtfString(maifestText, fileName);
 
             auto 
-            jiter = jManifest.find("appGroup");
+            // jiter = jManifest.find("appGroup");
+            jiter = findJsonAnyChild(jManifest, "appGroup", "app-group");
             if (jiter!=jManifest.end())
             {
                 std::string strAppGroup = jiter->get<std::string>();
                 manifest.appGroup = filenameFromText<StringType>(strAppGroup);
             }
 
-            jiter = jManifest.find("graphicsMode");
+            // jiter = jManifest.find("graphicsMode");
+            jiter = findJsonAnyChild(jManifest, "graphicsMode", "graphics-mode");
             if (jiter!=jManifest.end())
             {
                 std::string strMode = jiter->get<std::string>();
@@ -646,56 +661,289 @@ protected:
                 }
             }
 
-            jiter = jManifest.find("window");
+            //jiter = jManifest.find("window");
+            jiter = findJsonAnyChild(jManifest, "window");
             if (jiter!=jManifest.end())
             {
+                if (!jiter->is_object())
+                {
+                    throw std::runtime_error("'window' node is not an object");
+                }
+
                 auto jWindow = jiter.value();
-                if (jWindow.is_object())
+                //jiter = jWindow.find("title");
+                jiter = findJsonAnyChild(jWindow, "title");
+                if (jiter!=jWindow.end())
                 {
-                    jiter = jWindow.find("title");
-                    if (jiter!=jWindow.end())
-                    {
-                        std::string str = jiter->get<std::string>();
-                        manifest.window.title = decodeText<StringType>(str);
-                    }
+                    std::string str = jiter->get<std::string>();
+                    manifest.window.title = decodeText<StringType>(str);
                 }
+                
             }
 
-            jiter = jManifest.find("hotkeys");
+            //jiter = jManifest.find("hotkeys");
+            jiter = findJsonAnyChild(jManifest, "hotkeys");
             if (jiter!=jManifest.end())
             {
+                if (!jiter->is_object())
+                {
+                    throw std::runtime_error("'hotkeys' node is not an object");
+                }
+
                 auto jHotkeys = jiter.value();
-
-                if (jHotkeys.is_object())
+                
+                //jiter = jHotkeys.find("allowReloadScript");
+                jiter = findJsonAnyChild(jHotkeys, "allowReloadScript", "allow-reload-script");
+                if (jiter!=jHotkeys.end())
                 {
-                    jiter = jHotkeys.find("allowReloadScript");
-                    if (jiter!=jHotkeys.end())
-                    {
-                        manifest.hotkeysManifest.allowReloadScript = jiter->get<bool>();
-                    }
-                    jiter = jHotkeys.find("allowFullscreen");
-                    if (jiter!=jHotkeys.end())
-                    {
-                        manifest.hotkeysManifest.allowFullscreen = jiter->get<bool>();
-                    }
+                    manifest.hotkeysManifest.allowReloadScript = jiter->get<bool>();
                 }
+
+                //jiter = jHotkeys.find("allowFullscreen");
+                jiter = findJsonAnyChild(jHotkeys, "allowFullscreen", "allow-fullscreen");
+                if (jiter!=jHotkeys.end())
+                {
+                    manifest.hotkeysManifest.allowFullscreen = jiter->get<bool>();
+                }
+                
             }
 
-            jiter = jManifest.find("startup");
+            //jiter = jManifest.find("startup");
+            jiter = findJsonAnyChild(jManifest, "startup");
             if (jiter!=jManifest.end())
             {
-                auto jStartup = jiter.value();
-
-                if (jStartup.is_object())
+                if (!jiter->is_object())
                 {
-                    jiter = jStartup.find("runFullscreen");
-                    if (jiter!=jStartup.end())
-                    {
-                        manifest.startupManifest.runFullscreen = jiter->get<bool>();
-                    }
+                    throw std::runtime_error("'startup' node is not an object");
                 }
+
+                auto jStartup = jiter.value();
+                //jiter = jStartup.find("runFullscreen");
+                jiter = findJsonAnyChild(jStartup, "runFullscreen", "run-fullscreen");
+                if (jiter!=jStartup.end())
+                {
+                    manifest.startupManifest.runFullscreen = jiter->get<bool>();
+                }
+                
             }
 
+            jiter = jManifest.find("filesystem");
+            if (jiter!=jManifest.end())
+            {
+                if (!jiter->is_object())
+                {
+                    throw std::runtime_error("'filesystem' node is not an object");
+                }
+
+                auto jFilesystem = jiter.value();
+
+                //jiter = jFilesystem.find("mountLocalFilesystem");
+                jiter = findJsonAnyChild(jFilesystem, "mountLocalFilesystem", "mount-local-filesystem");
+                if (jiter!=jFilesystem.end())
+                {
+                    manifest.filesystemManifest.mountLocalFilesystem = jiter->get<bool>();
+                }
+
+
+                //jiter = jFilesystem.find("mountHome");
+                jiter = findJsonAnyChild(jFilesystem, "mountHome", "mount-home");
+                if (jiter!=jFilesystem.end())
+                {
+                    manifest.filesystemManifest.mountHome = jiter->get<bool>();
+                }
+
+                //jiter = jFilesystem.find("homeMountPointName");
+                jiter = findJsonAnyChild(jFilesystem, "homeMountPointName", "home-mount-point-name");
+                if (jiter!=jFilesystem.end())
+                {
+                    auto str = jiter->get<std::string>();
+                    manifest.filesystemManifest.homeMountPointName = decodeText<StringType>(str);
+                }
+
+                //jiter = jFilesystem.find("homeMountTarget");
+                jiter = findJsonAnyChild(jFilesystem, "homeMountTarget", "home-mount-target");
+                if (jiter!=jFilesystem.end())
+                {
+                    auto str = jiter->get<std::string>();
+                    manifest.filesystemManifest.homeMountTarget = decodeText<StringType>(str);
+                }
+
+
+                //jiter = jFilesystem.find("mountTemp");
+                jiter = findJsonAnyChild(jFilesystem, "mountTemp", "mount-temp");
+                if (jiter!=jFilesystem.end())
+                {
+                    manifest.filesystemManifest.mountTemp = jiter->get<bool>();
+                }
+
+                //jiter = jFilesystem.find("tempMountPointName");
+                jiter = findJsonAnyChild(jFilesystem, "tempMountPointName", "temp-mount-point-name");
+                if (jiter!=jFilesystem.end())
+                {
+                    auto str = jiter->get<std::string>();
+                    manifest.filesystemManifest.tempMountPointName = decodeText<StringType>(str);
+                }
+
+                //jiter = jFilesystem.find("tempMountTarget");
+                jiter = findJsonAnyChild(jFilesystem, "tempMountTarget", "temp-mount-target");
+                if (jiter!=jFilesystem.end())
+                {
+                    auto str = jiter->get<std::string>();
+                    manifest.filesystemManifest.tempMountTarget = decodeText<StringType>(str);
+                }
+
+
+                //jiter = jFilesystem.find("mountLogs");
+                jiter = findJsonAnyChild(jFilesystem, "mountLogs", "mount-logs");
+                if (jiter!=jFilesystem.end())
+                {
+                    manifest.filesystemManifest.mountLogs = jiter->get<bool>();
+                }
+
+                //jiter = jFilesystem.find("logsMountPointName");
+                jiter = findJsonAnyChild(jFilesystem, "logsMountPointName", "logs-mount-point-name");
+                if (jiter!=jFilesystem.end())
+                {
+                    auto str = jiter->get<std::string>();
+                    manifest.filesystemManifest.logsMountPointName = decodeText<StringType>(str);
+                }
+
+                //jiter = jFilesystem.find("logsMountTarget");
+                jiter = findJsonAnyChild(jFilesystem, "logsMountTarget", "logs-mount-target");
+                if (jiter!=jFilesystem.end())
+                {
+                    auto str = jiter->get<std::string>();
+                    manifest.filesystemManifest.logsMountTarget = decodeText<StringType>(str);
+                }
+
+
+                //jiter = jFilesystem.find("clearExistingMountPoints");
+                jiter = findJsonAnyChild(jFilesystem, "clearExistingMountPoints", "clear-existing-mount-points");
+                if (jiter!=jFilesystem.end())
+                {
+                    bool bClear = jiter->get<bool>();
+                    if (bClear)
+                    {
+                        manifest.filesystemManifest.customMountPoints.clear();
+                    }
+
+                }
+
+                //jiter = jFilesystem.find("mountPoints");
+                jiter = findJsonAnyChild(jFilesystem, "mountPoints", "mount-points");
+                if (jiter!=jFilesystem.end())
+                {
+                    //if (!jiter->is_object())
+                    if (!jiter->is_array())
+                    {
+                        //throw std::runtime_error("'filesystem/mountPoints' node is not an object");
+                        throw std::runtime_error("'filesystem/mountPoints' node is not an array");
+                    }
+
+                    auto jMountPoints = jiter.value();
+                    for (nlohmann::json::iterator jMp=jMountPoints.begin(); jMp!=jMountPoints.end(); ++jMp)
+                    {
+                        NutFilesystemManifestMountPointInfoT<StringType> mpi;
+
+                        jiter = jMp->find("name");
+                        if (jiter==jMp->end())
+                        {
+                            throw std::runtime_error("'filesystem/mountPoints': mount point must contain 'name' string");
+                        }
+                        else
+                        {
+                            auto str = jiter->get<std::string>();
+                            mpi.mountPointName = decodeText<StringType>(str);
+                        }
+
+                        jiter = jMp->find("target");
+                        if (jiter==jMp->end())
+                        {
+                            throw std::runtime_error("'filesystem/mountPoints': mount point must contain 'target' string");
+                        }
+                        else
+                        {
+                            auto str = jiter->get<std::string>();
+                            mpi.mountPointTargetPath = decodeText<StringType>(str);
+                        }
+
+                        manifest.filesystemManifest.customMountPoints.emplace_back(mpi);
+
+                    }
+
+                }
+
+            // auto &jAppListNode = appListNodeIter.value();
+            // if (!jAppListNode.is_array())
+            // {
+            //     umba::gmesg("dotnut.app-selector.manifest.json", "'app-list' node is not an array");
+            //     return ErrorCode::invalidFormat;
+            // }
+            //  
+            // appSel.manifestItems.clear();
+            //  
+            // for (nlohmann::json::iterator jAppListItemsIt=jAppListNode.begin(); jAppListItemsIt!=jAppListNode.end(); ++jAppListItemsIt)
+            // {
+            //     // title/app-name
+            //     auto jAppNameIter = jAppListItemsIt->find("app-name");
+            //     if (jAppNameIter==jAppListItemsIt->end())
+            //     {
+            //         continue;
+            //     }
+            //  
+            //     try
+            //     {
+            //         std::string strAppName           = jAppNameIter->get<std::string>();
+            //         StringType  strAppNameStringType = filenameFromText<StringType>(strAppName);
+            //         if (strAppNameStringType.empty())
+            //         {
+            //             continue;
+            //         }
+            //  
+            //         std::string strAppTitle;
+            //         auto jAppTitleIter = jAppListItemsIt->find("title");
+            //         if (jAppTitleIter!=jAppListItemsIt->end())
+            //         {
+            //             strAppTitle = jAppTitleIter->get<std::string>();
+            //         }
+
+
+                //manifest.filesystemManifest
+                //NutFilesystemManifestT<StringType>   filesystemManifest;
+
+                // template<typename StringType>
+                // struct NutFilesystemManifestT
+                // {
+                //     bool       mountLocalFilesystem = true;
+                //  
+                //     bool       mountHome            = true;
+                //     StringType homeMountPointName   = umba::string_plus::make_string<StringType>("~Home");
+                //  
+                //     bool       mountTemp            = true;
+                //     StringType tempMountPointName   = umba::string_plus::make_string<StringType>("$Temp");
+                //  
+                //     bool       mountLogs            = true;
+                //     StringType logsMountPointName   = umba::string_plus::make_string<StringType>(".Logs");
+                //  
+                //     std::vector< NutFilesystemManifestMountPointInfoT<StringType> > customMountPoints;
+                //  
+                // }; // struct NutFilesystemManifestT
+
+                // template<typename StringType>
+                // struct NutFilesystemManifestMountPointInfoT
+                // {
+                //     StringType    mountPointName;
+                //     StringType    mountPointTargetPath;  // Мы сами можем определить, является ли таргет каталогом или файлом
+                //  
+                //     // static
+                //     // NutFilesystemManifestMountPointInfoT<StringType> fromJsonNode(nlohmann::json &j)
+                //     // {
+                //     //     NutFilesystemManifestMountPointInfoT<StringType>
+                //     // }
+                // };
+
+
+            }
 
 #if 0
             ///
@@ -735,16 +983,6 @@ protected:
             ///
 
 #endif
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -974,6 +1212,146 @@ std::shared_ptr<IAssetsManager> makeAssetsManager( std::shared_ptr<marty_virtual
 }
 
 
+
+
+template<typename StringType, typename TargetGetter> inline
+ErrorCode configureAppFileSystemByManifestMountAppFixedPointHelper
+                                          ( std::shared_ptr<marty_virtual_fs::IVirtualFs> pVfs
+                                          , const StringType                              &manifestFile
+                                          , StringType                                    mntName    
+                                          , StringType                                    mntNameDefault
+                                          , StringType                                    mntTarget  // если не задано, то targetGetter
+                                          , const std::string                             &msgMountFailed
+                                          , TargetGetter                                  targetGetter
+                                          , const std::string                             &msgGetTargetFailed
+                                          )
+{
+    if (mntName.empty())
+    {
+        mntName = mntNameDefault;
+    }
+
+    if (mntTarget.empty())
+    {
+        if (!targetGetter(mntTarget))
+        {
+            umba::gmesg(manifestFile, msgGetTargetFailed);
+            return ErrorCode::genericError;
+        }
+    }
+
+    // mntName   - есть
+    // mntTarget - есть
+
+    ErrorCode err = pVfs->addMountPoint(mntName, mntTarget);
+    if (err!=ErrorCode::ok)
+    {
+        umba::gmesg(manifestFile, msgMountFailed);
+    }
+
+    return err;
+}
+
+template<typename StringType> inline
+ErrorCode configureAppFileSystemByManifest( std::shared_ptr<marty_virtual_fs::IVirtualFs> pVfs
+                                          , std::shared_ptr<marty_virtual_fs::IAppPaths>  pAppPaths
+                                          , const StringType                             &manifestFile
+                                          , const NutFilesystemManifestT<StringType>     &fsManifest
+                                          )
+{
+    ErrorCode err = ErrorCode::ok;
+
+
+    if (fsManifest.mountLocalFilesystem)
+    {
+        err = pVfs->createMachineFilesystemMountPoints();
+        if (err!=ErrorCode::ok)
+        {
+            umba::gmesg(manifestFile, "'filesystem/mountLocalFilesystem': Failed to mount local filesystem");
+            return err;
+        }
+    }
+
+    using umba::string_plus::make_string;
+
+
+    if (fsManifest.mountHome)
+    {
+        err = configureAppFileSystemByManifestMountAppFixedPointHelper
+                      ( pVfs, manifestFile
+                      , fsManifest.homeMountPointName                       // mntName
+                      , make_string<StringType>("~Home") // mntNameDefault
+                      , fsManifest.homeMountTarget                          // mntTarget
+                      , "'filesystem/mountHome': Failed to mount app home folder"
+                      , [&](StringType &mntTarget) { return pAppPaths->getAppHomePathEx(mntTarget, true); }
+                      , "'filesystem/mountHome': Failed to get app home folder"
+                      );
+
+        if (err!=ErrorCode::ok)
+            return err;
+    }
+
+
+    if (fsManifest.mountTemp)
+    {
+        err = configureAppFileSystemByManifestMountAppFixedPointHelper
+                      ( pVfs, manifestFile
+                      , fsManifest.tempMountPointName                       // mntName
+                      , make_string<StringType>("$Temp") // mntNameDefault
+                      , fsManifest.tempMountTarget                          // mntTarget
+                      , "'filesystem/mountTemp': Failed to mount app temp folder"
+                      , [&](StringType &mntTarget) { return pAppPaths->getAppTempPathEx(mntTarget, true); }
+                      , "'filesystem/mountTemp': Failed to get app temp folder"
+                      );
+
+        if (err!=ErrorCode::ok)
+            return err;
+    }
+
+
+    if (fsManifest.mountLogs)
+    {
+        err = configureAppFileSystemByManifestMountAppFixedPointHelper
+                      ( pVfs, manifestFile
+                      , fsManifest.logsMountPointName                       // mntName
+                      , make_string<StringType>(".Logs") // mntNameDefault
+                      , fsManifest.logsMountTarget                          // mntTarget
+                      , "'filesystem/mountLogs': Failed to mount app logs folder"
+                      , [&](StringType &mntTarget) { return pAppPaths->getAppLogsPathEx(mntTarget, true); }
+                      , "'filesystem/mountLogs': Failed to get app logs folder"
+                      );
+
+        if (err!=ErrorCode::ok)
+            return err;
+    }
+
+
+    for(const auto &mpi: fsManifest.customMountPoints)
+    {
+        marty_virtual_fs::FileTypeFlags  fileTypeFlags = marty_virtual_fs::FileTypeFlags::normalFile;
+        if (umba::filesys::isPathDirectory(mpi.mountPointTargetPath))
+        {
+            fileTypeFlags = fileTypeFlags | marty_virtual_fs::FileTypeFlags::directory;
+        }
+
+        err = pVfs->addMountPointEx(mpi.mountPointName, mpi.mountPointTargetPath, fileTypeFlags);
+        if (err!=ErrorCode::ok)
+        {
+            umba::gmesg( manifestFile
+                       , make_string<StringType>("'filesystem/mountPoints': Failed to mount '")
+                       + mpi.mountPointName 
+                       + make_string<StringType>("' to '")
+                       + mpi.mountPointTargetPath
+                       + make_string<StringType>("'")
+                       );
+            return err;
+        }
+        
+    }
+
+    return err;
+
+}
 
 
 
