@@ -89,16 +89,19 @@ struct NutFilesystemManifestMountPointInfoT
 template<typename StringType>
 struct NutFilesystemManifestT
 {
-    bool       mountLocalFilesystem = true;
+    bool       mountLocalFilesystem   = true;
 
-    bool       mountHome            = true;
-    StringType homeMountPointName   = umba::string_plus::make_string<StringType>("~Home");
+    bool       mountHome              = true;
+    StringType homeMountPointName     = umba::string_plus::make_string<StringType>("~Home");
+    StringType homeMountTarget;
 
-    bool       mountTemp            = true;
-    StringType tempMountPointName   = umba::string_plus::make_string<StringType>("$Temp");
+    bool       mountTemp              = true;
+    StringType tempMountPointName     = umba::string_plus::make_string<StringType>("$Temp");
+    StringType tempMountTarget;
 
-    bool       mountLogs            = true;
-    StringType logsMountPointName   = umba::string_plus::make_string<StringType>(".Logs");
+    bool       mountLogs              = true;
+    StringType logsMountPointName     = umba::string_plus::make_string<StringType>(".Logs");
+    StringType logsMountTarget;
 
     std::vector< NutFilesystemManifestMountPointInfoT<StringType> > customMountPoints;
 
@@ -151,7 +154,7 @@ template<typename StringType>
 struct NutManifestT
 {
     // IAppPathsCommon::setAppCommonHomeSubPath - Глобально на всё приложение для всех экземпляров приложения
-    StringType                           manifectFileName  ;
+    StringType                           manifestFileName  ;
 
     StringType                           appGroup          ;
     NutManifestGraphicsMode              manifestGraphicsMode  = NutManifestGraphicsMode::prefferSpeed;
