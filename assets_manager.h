@@ -34,6 +34,9 @@
 #include "marty_virtual_fs/i_virtual_fs.h"
 
 //
+#include "marty_simplesquirrel/json.h"
+
+//
 #include "umba/env.h"
 #include "umba/simple_formatter.h"
 #include "umba/gmesg.h"
@@ -97,36 +100,14 @@ protected:
                                                , const std::string &fileName
                                                ) const
     {
-     
-        std::string errMsg;
-        std::string tmpJson;
-        marty::json_utils::FileFormat detectedFormat = marty::json_utils::FileFormat::unknown;
-        //nlohmann::json j = marty::json_utils::parseJsonOrYaml( "null" );
-        nlohmann::json j = marty::json_utils::parseJsonOrYaml( jsonStr, true /* allowComments */ , &errMsg, &tmpJson, &detectedFormat );
-     
-        if (detectedFormat==marty::json_utils::FileFormat::unknown)
-        {
-            std::ostringstream oss;
-            oss << fileName << ": " << ": error: " << errMsg << "\n";
-            if (!tmpJson.empty())
-            {
-                oss << "JSON:" << "\n";
-                oss << tmpJson << "\n";
-            }
-     
-            umba::gmesg(oss.str());
-
-            throw std::runtime_error(oss.str());
-        }
-     
-        return j;
+        return marty_simplesquirrel::json_helpers::readGenericJsonFromUtfString(jsonStr, fileName);
     }
 
     nlohmann::json readGenericJsonFromUtfString( const std::string &jsonStr
                                                , const std::wstring &fileName
                                                ) const
     {
-        return readGenericJsonFromUtfString(jsonStr, m_pFs->encodeFilename(fileName));
+        return marty_simplesquirrel::json_helpers::readGenericJsonFromUtfString(jsonStr, m_pFs->encodeFilename(fileName));
     }
 
 
@@ -210,12 +191,6 @@ protected:
                                 , std::unordered_set<StringType> &loadedNuts
                                 ) const
     {
-        // static const StringType nutsJsnProjExt1  = umba::string_plus::make_string<StringType>(".NUTSJSNPROJ"); // project suffix
-        // static const StringType nutsJsnProjExt2  = umba::string_plus::make_string<StringType>(".NUTJSNPROJ"); // project suffix
-        // static const StringType nutsJsonExt      = umba::string_plus::make_string<StringType>(".NUTS.JSON"); // project suffix (double ext)
-        // static const StringType jsonExt          = umba::string_plus::make_string<StringType>(".JSON"); // project suffix
-        // static const StringType nutExt           = umba::string_plus::make_string<StringType>(".NUT") ; // single file suffix
-
         if (!m_pFs->isFileExistAndReadable(fileName))
         {
             return ErrorCode::notFound;
@@ -224,35 +199,7 @@ protected:
 
         StringType fileNameUpper = umba::string_plus::toupper_copy(fileName);
 
-        // Тут варианты такие
-        // Любые .json файлы рассматривать как файл проекта
-        // или именно .nuts.json?
-        // У последнего - красивое имя, но .nuts.lib.json - тоже неплохое расширение для либ, например
-
-        // В то же время readNutProjectCompleteImpl сама проверяет наличие тех или иных файлов, и изначально она сама
-        // пробует загрузить либо .nuts.json, либо просто .nut
-
-        // Наверное, лучше ограничится проверкой расширения на .json, или, скорее, на .nut - это точно отдельный файл
-
-        //
-
         bool isProjectFile = true;
-
-        #if 0
-        if (loadedProjects.empty())
-        {
-            // это первый файл, он должен быть строго .NUTS.JSON
-            if (!umba::string_plus::ends_with(fileNameUpper, nutsJsonExt))
-            {
-                isProjectFile = false;
-            }
-        }
-        #endif
-
-        // if (umba::string_plus::ends_with(fileNameUpper, nutExt))
-        // {
-        //     isProjectFile = false;
-        // }
 
         NutType nutType = detectFileNutTypeImpl(fileName);
         if (nutType!=NutType::dotNutProject)
@@ -383,15 +330,6 @@ protected:
 
                             prj.nuts.emplace_back(nutFile);
                             
-                            // if constexpr (sizeof(typename StringType::value_type)>1)
-                            // {
-                            //     prj.nuts.emplace_back(m_pFs->normalizeFilename(m_pFs->appendPath(filePath, m_pFs->decodeText(str))));
-                            // }
-                            // else
-                            // {
-                            //     prj.nuts.emplace_back(m_pFs->normalizeFilename(m_pFs->appendPath(filePath, str)));
-                            // }
-                           
                             if (!m_pFs->isFileExistAndReadable(prj.nuts.back()))
                             {
                                 //umba::lout << "Missing file '" << m_pFs->encodeFilename(prj.nuts.back()) << "\n";
@@ -622,18 +560,20 @@ protected:
     // void updateNutManifestGraphics(nlohmann::json j)
     // nlohmann::json
 
-    nlohmann::json::iterator findJsonAnyChild(nlohmann::json &j, const std::string &n1) const
-    {
-        return j.find(n1.c_str());
-    }
+    
 
-    nlohmann::json::iterator findJsonAnyChild(nlohmann::json &j, const std::string &n1, const std::string &n2) const
-    {
-        auto iter = j.find(n1.c_str());
-        if (iter==j.end())
-            iter = j.find(n2.c_str());
-        return iter;
-    }
+    // nlohmann::json::iterator findJsonAnyChild(nlohmann::json &j, const std::string &n1) const
+    // {
+    //     return j.find(n1.c_str());
+    // }
+    //  
+    // nlohmann::json::iterator findJsonAnyChild(nlohmann::json &j, const std::string &n1, const std::string &n2) const
+    // {
+    //     auto iter = j.find(n1.c_str());
+    //     if (iter==j.end())
+    //         iter = j.find(n2.c_str());
+    //     return iter;
+    // }
     
     bool getEnvironmentVariable(const std::string &name, std::string &val) const
     {
@@ -698,6 +638,8 @@ protected:
     template<typename StringType>
     ErrorCode updateNutManifestImpl(const StringType &fileName, NutManifestT<StringType> &manifest) const
     {
+        using marty_simplesquirrel::json_helpers::findJsonAnyChild;
+
         //MARTY_ASSMAN_ARG_USED(fileName);
         MARTY_ASSMAN_ARG_USED(manifest);
 
