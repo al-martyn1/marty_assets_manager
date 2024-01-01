@@ -34,6 +34,7 @@
 #include "marty_virtual_fs/i_virtual_fs.h"
 
 //
+#include "umba/env.h"
 #include "umba/simple_formatter.h"
 #include "umba/gmesg.h"
 
@@ -71,6 +72,19 @@ protected:
         if constexpr (sizeof(typename StringType::value_type)>1)
         {
             return m_pFs->decodeText(str);
+        }
+        else
+        {
+            return str;
+        }
+    }
+
+    template<typename StringType>
+    std::string encodeText(const StringType &str) const
+    {
+        if constexpr (sizeof(typename StringType::value_type)>1)
+        {
+            return m_pFs->encodeText(str);
         }
         else
         {
@@ -620,6 +634,66 @@ protected:
             iter = j.find(n2.c_str());
         return iter;
     }
+    
+    bool getEnvironmentVariable(const std::string &name, std::string &val) const
+    {
+        return umba::env::getVar(name, val);
+    }
+
+    bool getAllEnvironmentVariables(std::vector<std::pair<std::string,std::string> > &lst) const
+    {
+        return umba::env::getEnvVarsList(lst);
+    }
+
+    bool getEnvironmentVariable(const std::wstring &name, std::wstring &val) const
+    {
+        #if defined(WIN32) || defined(_WIN32)
+
+            return umba::env::getVar(name, val);
+
+        #else
+
+            std::string strVal;
+            if (!umba::env::getVar(encodeText(name), strVal))
+            {
+                return false;
+            }
+
+            val = decodeText<std::wstring>(strVal);
+
+            return true;
+
+        #endif
+        
+    }
+
+    bool getAllEnvironmentVariables(std::vector<std::pair<std::wstring,std::wstring> > &lst) const
+    {
+        #if defined(WIN32) || defined(_WIN32)
+
+            return umba::env::getEnvVarsList(lst);
+
+        #else
+
+            std::vector<std::pair<std::string,std::string> > strLst;
+            if (!umba::env::getEnvVarsList(strLst))
+            {
+                return false;
+            }
+
+            lst.clear();
+
+            for(const auto &p: strLst)
+            {
+                lst.emplace_back(std::make_pair(decodeText<std::wstring>(p.first),decodeText<std::wstring>(p.second)))
+            }
+
+            return true;
+
+        #endif
+        
+    }
+
 
     template<typename StringType>
     ErrorCode updateNutManifestImpl(const StringType &fileName, NutManifestT<StringType> &manifest) const
@@ -727,7 +801,90 @@ protected:
                 
             }
 
-            jiter = jManifest.find("filesystem");
+    // bool getAllEnvironmentVariables(std::vector<std::pair<std::wstring,std::wstring> > &lst) const
+    // bool getEnvironmentVariable(const std::string &name, std::string &val) const
+
+            jiter = findJsonAnyChild(jManifest, "importEnvironmentVariables", "import-environment-variables");
+            if (jiter!=jManifest.end())
+            {
+                if (jiter->is_boolean())
+                {
+                    std::vector<std::pair<StringType,StringType> > lst;
+                    getAllEnvironmentVariables(lst);
+                    for(const auto &p: lst)
+                    {
+                        manifest.envVars[p.first] = p.second;
+                    }
+                }
+                else if (jiter->is_array())
+                {
+                    auto jClearVariables = jiter.value();
+                    for (nlohmann::json::iterator jClrVarIt=jClearVariables.begin(); jClrVarIt!=jClearVariables.end(); ++jClrVarIt)
+                    {
+                        auto &jClrVar = jClrVarIt.value();
+                        auto strVal = jClrVar.get<std::string>();
+                        auto varName = decodeText<StringType>(strVal);
+                        StringType val;
+                        if (getEnvironmentVariable(varName, val))
+                        {
+                            manifest.envVars[varName] = val;
+                        }
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("'clearVariables' node is not an array nor boolean");
+                }
+            }
+
+
+            jiter = findJsonAnyChild(jManifest, "clearVariables", "clear-variables");
+            if (jiter!=jManifest.end())
+            {
+                if (jiter->is_boolean())
+                {
+                    manifest.envVars.clear();
+                }
+                else if (jiter->is_array())
+                {
+                    auto jClearVariables = jiter.value();
+                    for (nlohmann::json::iterator jClrVarIt=jClearVariables.begin(); jClrVarIt!=jClearVariables.end(); ++jClrVarIt)
+                    {
+                        auto &jClrVar = jClrVarIt.value();
+                        auto strVal = jClrVar.get<std::string>();
+                        manifest.envVars.erase(decodeText<StringType>(strVal));
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("'clearVariables' node is not an array nor boolean");
+                }
+            }
+
+
+            jiter = jManifest.find("variables");
+            if (jiter!=jManifest.end())
+            {
+                if (!jiter->is_object())
+                {
+                    throw std::runtime_error("'variables' node is not an object");
+                }
+
+                auto jVariables = jiter.value();
+                for (auto& el : jVariables.items())
+                {
+                    std::string strKey = el.key();
+                    std::string strVal = el.value();
+
+                    manifest.envVars[decodeText<StringType>(strKey)] = decodeText<StringType>(strVal);
+                }
+
+            }
+
+            //std::unordered_map<StringType, StringType>      envVars           ;
+
+            //jiter = jManifest.find("filesystem");
+            jiter = findJsonAnyChild(jManifest, "filesystem");
             if (jiter!=jManifest.end())
             {
                 if (!jiter->is_object())

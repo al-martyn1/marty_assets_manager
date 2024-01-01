@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 //
 #include "marty_virtual_fs/i_filesystem.h"
@@ -154,16 +155,18 @@ template<typename StringType>
 struct NutManifestT
 {
     // IAppPathsCommon::setAppCommonHomeSubPath - Глобально на всё приложение для всех экземпляров приложения
-    StringType                           manifestFileName  ;
+    StringType                                      manifestFileName  ;
 
-    StringType                           appGroup          ;
-    NutManifestGraphicsMode              manifestGraphicsMode  = NutManifestGraphicsMode::prefferSpeed;
+    StringType                                      appGroup          ;
+    NutManifestGraphicsMode                         manifestGraphicsMode  = NutManifestGraphicsMode::prefferSpeed;
 
-    NutWindowManifestT<StringType>       window            ;
+    NutWindowManifestT<StringType>                  window            ;
 
-    NutHotkeysManifest                   hotkeysManifest   ;
-    NutStartupManifest                   startupManifest   ;
-    NutFilesystemManifestT<StringType>   filesystemManifest;
+    NutHotkeysManifest                              hotkeysManifest   ;
+    NutStartupManifest                              startupManifest   ;
+    NutFilesystemManifestT<StringType>              filesystemManifest;
+
+    std::unordered_map<StringType, StringType>      envVars           ;
 
 };
 
