@@ -560,14 +560,14 @@ protected:
         StringType fullNameBase     = m_pFs->appendPath(umba::string_plus::make_string<StringType>("/nuts"), projectName);
         
         std::vector<StringType> projectFileNames;
-        projectFileNames.emplace_back(m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nutsjsnproj")));
-        projectFileNames.emplace_back(m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nutjsnproj" )));
         projectFileNames.emplace_back(m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nuts.json"  )));
         projectFileNames.emplace_back(m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nuts.jsn"   )));
-        projectFileNames.emplace_back(m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nutsymlproj")));
-        projectFileNames.emplace_back(m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nutymlproj" )));
+        projectFileNames.emplace_back(m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nutsjsnproj")));
+        projectFileNames.emplace_back(m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nutjsnproj" )));
         projectFileNames.emplace_back(m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nuts.yaml"  )));
         projectFileNames.emplace_back(m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nuts.yml"   )));
+        projectFileNames.emplace_back(m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nutsymlproj")));
+        projectFileNames.emplace_back(m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nutymlproj" )));
         projectFileNames.emplace_back(m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nut"        )));
 
         //StringType fullNameNut      = m_pFs->appendExt(fullNameBase, umba::string_plus::make_string<StringType>("nut"        ));
