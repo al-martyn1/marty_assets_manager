@@ -41,6 +41,7 @@ void configureNutAssetsFilesystem(marty_virtual_fs::IAppPaths *pAppPaths, marty_
     // ошибку игнорим - всё равно нихрена не сделать. Только если самим вернуть ошибку
     // bool getAppRootPath(std::string  &p) const = 0;
 
+    pVirtualFs->addMountPoint(L"conf"           , pVirtualFs->appendPath(appRootPath, L"conf"        ));
     pVirtualFs->addMountPoint(L"nuts"           , pVirtualFs->appendPath(appRootPath, L"nuts"        ));
     pVirtualFs->addMountPoint(L"assets"         , pVirtualFs->appendPath(appRootPath, L"assets"      ));
     pVirtualFs->addMountPoint(L"translations"   , pVirtualFs->appendPath(appRootPath, L"translations"));

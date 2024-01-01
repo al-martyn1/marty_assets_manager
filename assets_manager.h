@@ -1290,6 +1290,160 @@ public:
     }
 
 
+protected:
+
+    template<typename FileNameStringType, typename TextStringType>
+    ErrorCode readConfTextFileImpl(const FileNameStringType &fName, TextStringType &fText) const
+    {
+        FileNameStringType fullConfFileName
+            = m_pFs->appendPath( umba::string_plus::make_string<FileNameStringType>("/conf")
+                               , fName
+                               );
+
+        return m_pFs->readTextFile(fullConfFileName, fText);
+    }
+
+    template<typename FileNameStringType>
+    ErrorCode readConfDataFileImpl(const FileNameStringType &fName, std::vector<std::uint8_t> &fData) const
+    {
+        FileNameStringType fullConfFileName
+            = m_pFs->appendPath( umba::string_plus::make_string<FileNameStringType>("/conf")
+                               , fName
+                               );
+
+        return m_pFs->readDataFile(fullConfFileName, fData);
+    }
+
+
+public:
+
+    // Тут автоматически работают перекодировки текста
+    virtual ErrorCode readConfTextFile(const std::string  &fName, std::string  &fText) const override
+    {
+        return readConfTextFileImpl(fName, fText);
+    }
+
+    virtual ErrorCode readConfTextFile(const std::string  &fName, std::wstring &fText) const override
+    {
+        return readConfTextFileImpl(fName, fText);
+    }
+
+    virtual ErrorCode readConfTextFile(const std::wstring &fName, std::string  &fText) const override
+    {
+        return readConfTextFileImpl(fName, fText);
+    }
+
+    virtual ErrorCode readConfTextFile(const std::wstring &fName, std::wstring &fText) const override
+    {
+        return readConfTextFileImpl(fName, fText);
+    }
+
+     
+    // Reading binary files
+    virtual ErrorCode readConfDataFile(const std::string  &fName, std::vector<std::uint8_t> &fData) const override
+    {
+        return readConfDataFileImpl(fName, fData);
+    }
+
+    virtual ErrorCode readConfDataFile(const std::wstring &fName, std::vector<std::uint8_t> &fData) const override
+    {
+        return readConfDataFileImpl(fName, fData);
+    }
+
+    // Возвращает текстовую строку, соответствующую коду ошибки
+    virtual bool getErrorCodeString(ErrorCode e, std::string  &errStr) const override
+    {
+        return m_pFs->getErrorCodeString(e, errStr);
+    }
+
+    virtual bool getErrorCodeString(ErrorCode e, std::wstring &errStr) const override
+    {
+        return m_pFs->getErrorCodeString(e, errStr);
+    }
+
+
+    //! Возвращает путь
+    virtual std::string  getPath(const std::string  &fullName) const override
+    {
+        return m_pFs->getPath(fullName);
+    }
+
+    virtual std::wstring getPath(const std::wstring &fullName) const override
+    {
+        return m_pFs->getPath(fullName);
+    }
+
+    //! Возвращает имя и расширение
+    virtual std::string  getFileName(const std::string  &fullName) const override
+    {
+        return m_pFs->getFileName(fullName);
+    }
+
+    virtual std::wstring getFileName(const std::wstring &fullName) const override
+    {
+        return m_pFs->getFileName(fullName);
+    }
+
+
+    //! Возвращает путь и имя
+    virtual std::string  getPathFile(const std::string  &fullName) const override
+    {
+        return m_pFs->getPathFile(fullName);
+    }
+
+    virtual std::wstring getPathFile(const std::wstring &fullName) const override
+    {
+        return m_pFs->getPathFile(fullName);
+    }
+
+
+    //! Возвращает расширение
+    virtual std::string  getExt(const std::string  &fullName) const override
+    {
+        return m_pFs->getExt(fullName);
+    }
+
+    virtual std::wstring getExt(const std::wstring &fullName) const override
+    {
+        return m_pFs->getExt(fullName);
+    }
+
+
+    //! Возвращает имя файла без пути и расширения
+    virtual std::string  getName(const std::string  &fullName) const override
+    {
+        return m_pFs->getName(fullName);
+    }
+
+    virtual std::wstring getName(const std::wstring &fullName) const override
+    {
+        return m_pFs->getName(fullName);
+    }
+
+
+    //! Конкатенация путей
+    virtual std::string  appendPath(const std::string  &pathAppendTo, const std::string  &appendPath) const override
+    {
+        return m_pFs->appendPath(pathAppendTo, appendPath);
+    }
+
+    virtual std::wstring appendPath(const std::wstring &pathAppendTo, const std::wstring &appendPath) const override
+    {
+        return m_pFs->appendPath(pathAppendTo, appendPath);
+    }
+
+
+    //! Добавление расширения
+    virtual std::string  appendExt(const std::string  &nameAppendTo, const std::string  &appendExt) const override
+    {
+        return m_pFs->appendPath(nameAppendTo, appendExt);
+    }
+
+    virtual std::wstring appendExt(const std::wstring &nameAppendTo, const std::wstring &appendExt) const override
+    {
+        return m_pFs->appendPath(nameAppendTo, appendExt);
+    }
+
 
 
 }; // struct IAssetsManager

@@ -62,8 +62,50 @@ struct IAssetsManager
     virtual ErrorCode updateNutManifest(NutManifestW &manifest) const = 0;
 
 
+    // Возвращает текстовую строку, соответствующую коду ошибки
+    virtual bool getErrorCodeString(ErrorCode e, std::string  &errStr) const = 0; // static
+    virtual bool getErrorCodeString(ErrorCode e, std::wstring &errStr) const = 0; // static
 
-    // Чтение manifest'а
+    //! Возвращает путь
+    virtual std::string  getPath(const std::string  &fullName) const = 0; // static
+    virtual std::wstring getPath(const std::wstring &fullName) const = 0; // static
+
+    //! Возвращает имя и расширение
+    virtual std::string  getFileName(const std::string  &fullName) const = 0; // static
+    virtual std::wstring getFileName(const std::wstring &fullName) const = 0; // static
+
+    //! Возвращает путь и имя
+    virtual std::string  getPathFile(const std::string  &fullName) const = 0; // static
+    virtual std::wstring getPathFile(const std::wstring &fullName) const = 0; // static
+
+    //! Возвращает расширение
+    virtual std::string  getExt(const std::string  &fullName) const = 0; // static
+    virtual std::wstring getExt(const std::wstring &fullName) const = 0; // static
+
+    //! Возвращает имя файла без пути и расширения
+    virtual std::string  getName(const std::string  &fullName) const = 0; // static
+    virtual std::wstring getName(const std::wstring &fullName) const = 0; // static
+
+    //! Конкатенация путей
+    virtual std::string  appendPath(const std::string  &pathAppendTo, const std::string  &appendPath) const = 0; // static
+    virtual std::wstring appendPath(const std::wstring &pathAppendTo, const std::wstring &appendPath) const = 0; // static
+
+    //! Добавление расширения
+    virtual std::string  appendExt(const std::string  &nameAppendTo, const std::string  &appendExt) const = 0; // static
+    virtual std::wstring appendExt(const std::wstring &nameAppendTo, const std::wstring &appendExt) const = 0; // static
+
+
+    // Тут автоматически работают перекодировки текста
+    virtual ErrorCode readConfTextFile(const std::string  &fName, std::string  &fText) const = 0;
+    virtual ErrorCode readConfTextFile(const std::string  &fName, std::wstring &fText) const = 0;
+    virtual ErrorCode readConfTextFile(const std::wstring &fName, std::string  &fText) const = 0;
+    virtual ErrorCode readConfTextFile(const std::wstring &fName, std::wstring &fText) const = 0;
+
+    // Reading binary files
+    virtual ErrorCode readConfDataFile(const std::string  &fName, std::vector<std::uint8_t> &fData) const = 0;
+    virtual ErrorCode readConfDataFile(const std::wstring &fName, std::vector<std::uint8_t> &fData) const = 0;
+
+
 
 
 }; // struct IAssetsManager
