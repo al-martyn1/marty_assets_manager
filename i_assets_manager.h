@@ -9,6 +9,8 @@
 #include <vector>
 
 //
+#include "nlohmann/json.hpp"
+//
 #include "types.h"
 
 //
@@ -105,6 +107,8 @@ struct IAssetsManager
     virtual ErrorCode readConfDataFile(const std::string  &fName, std::vector<std::uint8_t> &fData) const = 0;
     virtual ErrorCode readConfDataFile(const std::wstring &fName, std::vector<std::uint8_t> &fData) const = 0;
 
+    virtual ErrorCode readConfJson(const std::string  &fName, nlohmann::json &j) const = 0;
+    virtual ErrorCode readConfJson(const std::wstring &fName, nlohmann::json &j) const = 0;
 
 
 
