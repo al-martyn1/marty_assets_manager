@@ -3,7 +3,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{70A3079D-62E4-46B9-A2A8-A0366D167D5B}</ProjectGuid>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(VisualStudioVersion)'=='16.0'" Label="UmbaProps">
+  <PropertyGroup Label="UmbaProps">
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
