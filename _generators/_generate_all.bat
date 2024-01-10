@@ -33,7 +33,7 @@
 @set MANIFESTGRAPHICSMODE_DEF=invalid,unknown=-1;prefferSpeed=0;prefferQuality
 
 @set MANIFESTSIZEUNITS_GEN_FLAGS=--enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL%
-@set MANIFESTSIZEUNITS_DEF=invalid,unknown=-1;px=0;dbu=1
+@set MANIFESTSIZEUNITS_DEF=invalid,unknown=-1;px=0;dbu,dialogBaseUnits=1;du,dtu,dialogTemplateUnits;percent
 
 
 umba-enum-gen %GEN_OPTS% %HEX2% %TPL_OVERRIDE% ^

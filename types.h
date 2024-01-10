@@ -15,6 +15,7 @@
 #include "enums.h"
 //
 #include "umba/string_plus.h"
+#include "umba/units.h"
 
 //
 #include "nlohmann/json.hpp"
@@ -113,10 +114,36 @@ struct NutFilesystemManifestT
 
 
 //----------------------------------------------------------------------------
+struct WindowSize
+{
+    typedef umba::units::ValWithUnits<unsigned, NutManifestSizeUnits>    ValueWithUnits;
+
+    // value, units
+    ValueWithUnits  xSize    = {0, NutManifestSizeUnits::unknown};
+    ValueWithUnits  ySize    = {0, NutManifestSizeUnits::unknown};
+
+};
+
+//----------------------------------------------------------------------------
 template<typename StringType>
 struct NutWindowManifestT
 {
     StringType title;
+
+    bool allowMaximize   = true;
+    bool allowMinimize   = true;
+    bool allowResize     = true;
+
+    bool showTitle       = true;
+    bool showSysMenu     = true;
+    bool showStatusBar   = true;
+    bool showClientEdge  = false;
+
+    WindowSize size;
+    WindowSize sizeMin;
+
+    // WindowSizeValueWithUnits  xSizeMin = {0, NutManifestSizeUnits::unknown};
+    // WindowSizeValueWithUnits  ySizeMin = {0, NutManifestSizeUnits::unknown};
 
 }; // struct NutFilesystemManifestT
 
@@ -130,7 +157,9 @@ typedef NutWindowManifestT<std::wstring>  NutWindowManifestW;
 //----------------------------------------------------------------------------
 struct NutStartupManifest
 {
-    bool runFullscreen = false;
+    bool runFullscreen        = false;
+    bool runMaximized         = false;
+    bool centerWindow         = false;
 
 }; // struct NutStartupManifest
 

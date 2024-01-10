@@ -69,24 +69,36 @@ MARTY_CPP_ENUM_CLASS_DESERIALIZE_END( NutType, std::map, 1 )
 
 enum class NutManifestSizeUnits : std::uint32_t
 {
-    invalid   = (std::uint32_t)(-1),
-    unknown   = (std::uint32_t)(-1),
-    px        = 0x00,
-    dbu       = 0x01
+    invalid               = (std::uint32_t)(-1),
+    unknown               = (std::uint32_t)(-1),
+    px                    = 0x00,
+    dbu                   = 0x01,
+    dialogBaseUnits       = 0x01,
+    du                    = 0x02,
+    dtu                   = 0x02,
+    dialogTemplateUnits   = 0x02,
+    percent               = 0x03
 
 }; // enum class NutManifestSizeUnits : std::uint32_t
 
 MARTY_CPP_ENUM_CLASS_SERIALIZE_BEGIN( NutManifestSizeUnits, std::map, 1 )
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( NutManifestSizeUnits::invalid   , "Invalid" );
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( NutManifestSizeUnits::px        , "Px"      );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( NutManifestSizeUnits::percent   , "Percent" );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( NutManifestSizeUnits::du        , "Du"      );
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( NutManifestSizeUnits::dbu       , "Dbu"     );
 MARTY_CPP_ENUM_CLASS_SERIALIZE_END( NutManifestSizeUnits, std::map, 1 )
 
 MARTY_CPP_ENUM_CLASS_DESERIALIZE_BEGIN( NutManifestSizeUnits, std::map, 1 )
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::invalid   , "invalid" );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::invalid   , "unknown" );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::px        , "px"      );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::dbu       , "dbu"     );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::invalid   , "invalid"             );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::invalid   , "unknown"             );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::px        , "px"                  );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::percent   , "percent"             );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::du        , "dialogtemplateunits" );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::du        , "du"                  );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::du        , "dtu"                 );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::dbu       , "dbu"                 );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( NutManifestSizeUnits::dbu       , "dialogbaseunits"     );
 MARTY_CPP_ENUM_CLASS_DESERIALIZE_END( NutManifestSizeUnits, std::map, 1 )
 
 } // namespace marty_assets_manager

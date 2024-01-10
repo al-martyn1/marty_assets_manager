@@ -694,8 +694,150 @@ protected:
                     std::string str = jiter->get<std::string>();
                     manifest.window.title = decodeText<StringType>(str);
                 }
-                
+
+                jiter = findJsonAnyChild(jWindow, "allowMaximize", "allow-maximize");
+                if (jiter!=jWindow.end())
+                {
+                    manifest.window.allowMaximize = jiter->get<bool>();
+                }
+
+                jiter = findJsonAnyChild(jWindow, "allowMinimize", "allow-minimize");
+                if (jiter!=jWindow.end())
+                {
+                    manifest.window.allowMinimize = jiter->get<bool>();
+                }
+
+                jiter = findJsonAnyChild(jWindow, "allowResize", "allow-resize");
+                if (jiter!=jWindow.end())
+                {
+                    manifest.window.allowResize = jiter->get<bool>();
+                }
+
+                jiter = findJsonAnyChild(jWindow, "showTitle", "show-title");
+                if (jiter!=jWindow.end())
+                {
+                    manifest.window.showTitle = jiter->get<bool>();
+                }
+
+                jiter = findJsonAnyChild(jWindow, "showSysMenu", "show-sys-menu");
+                if (jiter!=jWindow.end())
+                {
+                    manifest.window.showSysMenu = jiter->get<bool>();
+                }
+
+                jiter = findJsonAnyChild(jWindow, "showStatusBar", "show-status-bar");
+                if (jiter!=jWindow.end())
+                {
+                    manifest.window.showStatusBar = jiter->get<bool>();
+                }
+
+                jiter = findJsonAnyChild(jWindow, "showClientEdge", "show-client-edge");
+                if (jiter!=jWindow.end())
+                {
+                    manifest.window.showClientEdge = jiter->get<bool>();
+                }
+
+
+                {
+                    static
+                    const std::unordered_map<std::string, NutManifestSizeUnits> unitsMap = 
+                    { {"unknown", NutManifestSizeUnits::unknown }
+                    , {"px", NutManifestSizeUnits::px }
+                    , {"pixel", NutManifestSizeUnits::px }
+                    , {"pixels", NutManifestSizeUnits::px }
+                    , {"dbu", NutManifestSizeUnits::dbu }
+                    , {"DialogBaseUnit", NutManifestSizeUnits::dbu }
+                    , {"DialogBaseUnits", NutManifestSizeUnits::dbu }
+                    , {"du", NutManifestSizeUnits::du }
+                    , {"dtu", NutManifestSizeUnits::du }
+                    , {"dialogTemplateUnit", NutManifestSizeUnits::du }
+                    , {"dialogTemplateUnits", NutManifestSizeUnits::du }
+                    , {"percent", NutManifestSizeUnits::percent }
+                    , {"percents", NutManifestSizeUnits::percent }
+                    , {"%", NutManifestSizeUnits::percent }
+                    };
+
+                    jiter = findJsonAnyChild(jWindow, "width");
+                    if (jiter!=jWindow.end())
+                    {
+                        std::string strWidth = jiter->get<std::string>();
+                        manifest.window.size.xSize = WindowSize::ValueWithUnits::fromString( strWidth 
+                                                                                           , unitsMap
+                                                                                           , NutManifestSizeUnits::px
+                                                                                           , true // ignore case
+                                                                                           );
+                    }
+
+                    jiter = findJsonAnyChild(jWindow, "height");
+                    if (jiter!=jWindow.end())
+                    {
+                        std::string strHeight = jiter->get<std::string>();
+                        manifest.window.size.ySize = WindowSize::ValueWithUnits::fromString( strHeight 
+                                                                                           , unitsMap
+                                                                                           , NutManifestSizeUnits::px
+                                                                                           , true // ignore case
+                                                                                           );
+                    }
+
+                    jiter = findJsonAnyChild(jWindow, "minWidth", "min-width");
+                    if (jiter!=jWindow.end())
+                    {
+                        std::string strWidth = jiter->get<std::string>();
+                        manifest.window.sizeMin.xSize = WindowSize::ValueWithUnits::fromString( strWidth 
+                                                                                              , unitsMap
+                                                                                              , NutManifestSizeUnits::px
+                                                                                              , true // ignore case
+                                                                                              );
+                    }
+
+                    jiter = findJsonAnyChild(jWindow, "minHeight", "min-height");
+                    if (jiter!=jWindow.end())
+                    {
+                        std::string strHeight = jiter->get<std::string>();
+                        manifest.window.sizeMin.ySize = WindowSize::ValueWithUnits::fromString( strHeight 
+                                                                                              , unitsMap
+                                                                                              , NutManifestSizeUnits::px
+                                                                                              , true // ignore case
+                                                                                              );
+                    }
+
+                }
+
             }
+
+
+            //jiter = jManifest.find("startup");
+            jiter = findJsonAnyChild(jManifest, "startup");
+            if (jiter!=jManifest.end())
+            {
+                if (!jiter->is_object())
+                {
+                    throw std::runtime_error("'startup' node is not an object");
+                }
+
+                auto jStartup = jiter.value();
+                //jiter = jStartup.find("runFullscreen");
+                jiter = findJsonAnyChild(jStartup, "runFullscreen", "run-fullscreen");
+                if (jiter!=jStartup.end())
+                {
+                    manifest.startupManifest.runFullscreen = jiter->get<bool>();
+                }
+
+                jiter = findJsonAnyChild(jStartup, "runMaximized", "run-maximized");
+                if (jiter!=jStartup.end())
+                {
+                    manifest.startupManifest.runMaximized = jiter->get<bool>();
+                }
+
+                jiter = findJsonAnyChild(jStartup, "centerWindow", "center-window");
+                if (jiter!=jStartup.end())
+                {
+                    manifest.startupManifest.centerWindow = jiter->get<bool>();
+                }
+
+            }
+
+
 
             //jiter = jManifest.find("hotkeys");
             jiter = findJsonAnyChild(jManifest, "hotkeys");
@@ -720,25 +862,6 @@ protected:
                 if (jiter!=jHotkeys.end())
                 {
                     manifest.hotkeysManifest.allowFullscreen = jiter->get<bool>();
-                }
-                
-            }
-
-            //jiter = jManifest.find("startup");
-            jiter = findJsonAnyChild(jManifest, "startup");
-            if (jiter!=jManifest.end())
-            {
-                if (!jiter->is_object())
-                {
-                    throw std::runtime_error("'startup' node is not an object");
-                }
-
-                auto jStartup = jiter.value();
-                //jiter = jStartup.find("runFullscreen");
-                jiter = findJsonAnyChild(jStartup, "runFullscreen", "run-fullscreen");
-                if (jiter!=jStartup.end())
-                {
-                    manifest.startupManifest.runFullscreen = jiter->get<bool>();
                 }
                 
             }
