@@ -122,6 +122,12 @@ struct WindowSize
     ValueWithUnits  xSize    = {0, NutManifestSizeUnits::unknown};
     ValueWithUnits  ySize    = {0, NutManifestSizeUnits::unknown};
 
+    WindowSize() = default;
+    WindowSize(const WindowSize &) = default;
+    WindowSize& operator=(const WindowSize &) = default;
+    WindowSize(WindowSize &&) = default;
+    WindowSize& operator=(WindowSize &&) = default;
+
 };
 
 //----------------------------------------------------------------------------
@@ -141,6 +147,13 @@ struct NutWindowManifestT
 
     WindowSize size;
     WindowSize sizeMin;
+
+
+    NutWindowManifestT() = default;
+    NutWindowManifestT(const NutWindowManifestT &) = default;
+    NutWindowManifestT& operator=(const NutWindowManifestT &) = default;
+    NutWindowManifestT(NutWindowManifestT &&) = default;
+    NutWindowManifestT& operator=(NutWindowManifestT &&) = default;
 
     // WindowSizeValueWithUnits  xSizeMin = {0, NutManifestSizeUnits::unknown};
     // WindowSizeValueWithUnits  ySizeMin = {0, NutManifestSizeUnits::unknown};
