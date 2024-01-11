@@ -135,6 +135,7 @@ template<typename StringType>
 struct NutWindowManifestT
 {
     StringType title;
+    StringType iconName;
 
     bool allowMaximize   = true;
     bool allowMinimize   = true;
@@ -144,6 +145,8 @@ struct NutWindowManifestT
     bool showSysMenu     = true;
     bool showStatusBar   = true;
     bool showClientEdge  = false;
+
+    bool centerWindow    = false;
 
     WindowSize size;
     WindowSize sizeMin;

@@ -110,6 +110,13 @@ struct IAssetsManager
     virtual ErrorCode readConfJson(const std::string  &fName, nlohmann::json &j) const = 0;
     virtual ErrorCode readConfJson(const std::wstring &fName, nlohmann::json &j) const = 0;
 
+    virtual ErrorCode readAssetsDataFile(const std::string  &fName, std::vector<std::uint8_t> &fData) const = 0;
+    virtual ErrorCode readAssetsDataFile(const std::wstring &fName, std::vector<std::uint8_t> &fData) const = 0;
+
+    virtual ErrorCode readIconData(const std::string  &iconName, std::vector<std::uint8_t> &iconData) const = 0;
+    virtual ErrorCode readIconData(const std::wstring &iconName, std::vector<std::uint8_t> &iconData) const = 0;
+
+    virtual ErrorCode readAppIconData(std::vector<std::uint8_t> &iconData) const = 0;
 
 
 }; // struct IAssetsManager

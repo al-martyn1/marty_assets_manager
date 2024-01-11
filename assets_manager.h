@@ -695,6 +695,13 @@ protected:
                     manifest.window.title = decodeText<StringType>(str);
                 }
 
+                jiter = findJsonAnyChild(jWindow, "icon");
+                if (jiter!=jWindow.end())
+                {
+                    std::string str = jiter->get<std::string>();
+                    manifest.window.iconName = decodeText<StringType>(str);
+                }
+
                 jiter = findJsonAnyChild(jWindow, "allowMaximize", "allow-maximize");
                 if (jiter!=jWindow.end())
                 {
@@ -1437,6 +1444,50 @@ protected:
         return m_pFs->readDataFile(fullConfFileName, fData);
     }
 
+    template<typename FileNameStringType>
+    ErrorCode readAssetsDataFileImpl(const FileNameStringType &fName, std::vector<std::uint8_t> &fData) const
+    {
+        FileNameStringType fullFileName
+            = m_pFs->appendPath( umba::string_plus::make_string<FileNameStringType>("/assets")
+                               , fName
+                               );
+
+        return m_pFs->readDataFile(fullFileName, fData);
+    }
+
+
+    template<typename FileNameStringType>
+    ErrorCode readIconDataImpl(FileNameStringType iconName, std::vector<std::uint8_t> &iconData) const
+    {
+        if (iconName.empty())
+        {
+            iconName = umba::string_plus::make_string<FileNameStringType>("default_icon");
+        }
+
+        FileNameStringType iconExtUpper = umba::string_plus::toupper_copy(getExt(iconName));
+
+        FileNameStringType iconRootPath = umba::string_plus::make_string<FileNameStringType>("icons");
+
+        #if defined(WIN32) || defined(_WIN32)
+
+            iconRootPath = appendPath(iconRootPath, umba::string_plus::make_string<FileNameStringType>("windows"));
+
+            if (iconExtUpper.empty() || iconExtUpper!=umba::string_plus::make_string<FileNameStringType>("ICO"))
+            {
+                iconName = appendExt(iconName, umba::string_plus::make_string<FileNameStringType>("ico"));
+            }
+
+        #else
+
+            iconRootPath = appendPath(iconRootPath, umba::string_plus::make_string<FileNameStringType>("linux"));
+
+        #endif
+
+        FileNameStringType iconResourceFullFileName = appendPath(iconRootPath, iconName);
+
+        return readAssetsDataFileImpl(iconResourceFullFileName, iconData);
+    }
+
 
 public:
 
@@ -1513,6 +1564,43 @@ public:
     {
         return readConfDataFileImpl(fName, fData);
     }
+
+    virtual ErrorCode readAssetsDataFile(const std::string  &fName, std::vector<std::uint8_t> &fData) const override
+    {
+        return readAssetsDataFileImpl(fName, fData);
+    }
+
+    virtual ErrorCode readAssetsDataFile(const std::wstring &fName, std::vector<std::uint8_t> &fData) const override
+    {
+        return readAssetsDataFileImpl(fName, fData);
+    }
+
+
+    // ErrorCode readIconDataImpl(FileNameStringType iconName, std::vector<std::uint8_t> &fData) const
+
+    virtual ErrorCode readIconData(const std::string  &iconName, std::vector<std::uint8_t> &iconData) const override
+    {
+        return readIconDataImpl(iconName, iconData);
+    }
+
+    virtual ErrorCode readIconData(const std::wstring &iconName, std::vector<std::uint8_t> &iconData) const override
+    {
+        return readIconDataImpl(iconName, iconData);
+    }
+
+    virtual ErrorCode readAppIconData(std::vector<std::uint8_t> &iconData) const override
+    {
+        std::wstring  appName;
+        ErrorCode err = getProjectName(appName);
+        if (err!=ErrorCode::ok)
+        {
+            appName = umba::string_plus::make_string<std::wstring>("app_icon");
+        }
+
+        return readIconData(appName, iconData);
+    }
+
+
 
     // Возвращает текстовую строку, соответствующую коду ошибки
     virtual bool getErrorCodeString(ErrorCode e, std::string  &errStr) const override
@@ -1600,12 +1688,12 @@ public:
     //! Добавление расширения
     virtual std::string  appendExt(const std::string  &nameAppendTo, const std::string  &appendExt) const override
     {
-        return m_pFs->appendPath(nameAppendTo, appendExt);
+        return m_pFs->appendExt(nameAppendTo, appendExt);
     }
 
     virtual std::wstring appendExt(const std::wstring &nameAppendTo, const std::wstring &appendExt) const override
     {
-        return m_pFs->appendPath(nameAppendTo, appendExt);
+        return m_pFs->appendExt(nameAppendTo, appendExt);
     }
 
 
