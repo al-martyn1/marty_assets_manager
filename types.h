@@ -92,6 +92,7 @@ template<typename StringType>
 struct NutFilesystemManifestT
 {
     bool       mountLocalFilesystem   = true;
+    bool       remountOnMediaChanges  = true;
 
     bool       mountHome              = true;
     StringType homeMountPointName     = umba::string_plus::make_string<StringType>("~Home");

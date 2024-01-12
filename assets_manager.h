@@ -973,6 +973,11 @@ protected:
                     manifest.filesystemManifest.mountLocalFilesystem = jiter->get<bool>();
                 }
 
+                jiter = findJsonAnyChild(jFilesystem, "remountOnMediaChanges", "remount-on-media-changes");
+                if (jiter!=jFilesystem.end())
+                {
+                    manifest.filesystemManifest.remountOnMediaChanges = jiter->get<bool>();
+                }
 
                 //jiter = jFilesystem.find("mountHome");
                 jiter = findJsonAnyChild(jFilesystem, "mountHome", "mount-home");
