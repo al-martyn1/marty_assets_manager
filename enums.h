@@ -21,6 +21,8 @@ enum class NutManifestGraphicsMode : std::uint32_t
 
 }; // enum class NutManifestGraphicsMode : std::uint32_t
 
+MARTY_CPP_MAKE_ENUM_IS_FLAGS_FOR_NON_FLAGS_ENUM(NutManifestGraphicsMode)
+
 MARTY_CPP_ENUM_CLASS_SERIALIZE_BEGIN( NutManifestGraphicsMode, std::map, 1 )
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( NutManifestGraphicsMode::prefferSpeed     , "PrefferSpeed"   );
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( NutManifestGraphicsMode::invalid          , "Invalid"        );
@@ -46,6 +48,8 @@ enum class NutType : std::uint32_t
     dotNutAppSelector   = 0x04
 
 }; // enum class NutType : std::uint32_t
+
+MARTY_CPP_MAKE_ENUM_IS_FLAGS_FOR_NON_FLAGS_ENUM(NutType)
 
 MARTY_CPP_ENUM_CLASS_SERIALIZE_BEGIN( NutType, std::map, 1 )
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( NutType::dotNutProject       , "DotNutProject"     );
@@ -80,6 +84,8 @@ enum class NutManifestSizeUnits : std::uint32_t
     percent               = 0x03
 
 }; // enum class NutManifestSizeUnits : std::uint32_t
+
+MARTY_CPP_MAKE_ENUM_IS_FLAGS_FOR_NON_FLAGS_ENUM(NutManifestSizeUnits)
 
 MARTY_CPP_ENUM_CLASS_SERIALIZE_BEGIN( NutManifestSizeUnits, std::map, 1 )
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( NutManifestSizeUnits::invalid   , "Invalid" );
