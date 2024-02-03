@@ -119,6 +119,10 @@ struct IAssetsManager
     virtual ErrorCode readAppIconData(std::vector<std::uint8_t> &iconData) const = 0;
 
 
+    virtual ErrorCode loadTranslations() const = 0;
+    virtual ErrorCode loadUserTranslationsFromJson(const std::string  &trJson) const = 0;
+    virtual ErrorCode loadUserTranslationsFromJson(const std::wstring &trJson) const = 0;
+
 }; // struct IAssetsManager
 
 

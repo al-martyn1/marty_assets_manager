@@ -37,6 +37,9 @@
 #include "marty_simplesquirrel/json.h"
 
 //
+#include "marty_tr/marty_tr.h"
+
+//
 #include "umba/env.h"
 #include "umba/simple_formatter.h"
 #include "umba/gmesg.h"
@@ -1699,6 +1702,76 @@ public:
     virtual std::wstring appendExt(const std::wstring &nameAppendTo, const std::wstring &appendExt) const override
     {
         return m_pFs->appendExt(nameAppendTo, appendExt);
+    }
+
+
+    virtual ErrorCode loadTranslations() const override
+    {
+        std::wstring  appName;
+        ErrorCode err = getProjectName(appName);
+        if (err!=ErrorCode::ok)
+        {
+            return err;
+        }
+
+
+        std::wstring fullTrFileName
+            = m_pFs->appendPath( umba::string_plus::make_string<std::wstring>("/translations")
+                               , appName
+                               );
+        fullTrFileName = m_pFs->appendExt(fullTrFileName, umba::string_plus::make_string<std::wstring>(".json"));
+
+        std::string trJson;
+        ErrorCode err1 = m_pFs->readTextFile(fullTrFileName, trJson);
+        if (err1==ErrorCode::ok)
+        {
+            err1 = loadUserTranslationsFromJson(trJson);
+        }
+
+        fullTrFileName
+            = m_pFs->appendPath( umba::string_plus::make_string<std::wstring>("/translations")
+                               , umba::string_plus::make_string<std::wstring>("common")
+                               );
+        fullTrFileName = m_pFs->appendExt(fullTrFileName, umba::string_plus::make_string<std::wstring>(".json"));
+
+        trJson.clear();
+
+        ErrorCode err2 = m_pFs->readTextFile(fullTrFileName, trJson);
+        if (err2==ErrorCode::ok)
+        {
+            err2 = loadUserTranslationsFromJson(trJson);
+        }
+
+        return err1!=ErrorCode::ok ? err1 : err2;
+    }
+
+
+    virtual ErrorCode loadUserTranslationsFromJson(const std::string  &trJson) const override
+    {
+        try
+        {
+            //std::string jsonTrDataUtf8 = autoConvertToUtf8(jsonTrData);
+            auto m = marty_tr::tr_parse_translations_data(trJson);
+            marty_tr::tr_add_custom_translations(m);
+        }
+        catch(const std::exception & /* e */ )
+        {
+            //LOG_ERR_OPT<<fname<<": "<<e.what()<< "\n";
+            //return false;
+            return ErrorCode::invalidFormat;
+        }
+        catch(...)
+        {
+            //LOG_ERR_OPT<<fname<<": "<<"Unknown error"<< "\n";
+            return ErrorCode::invalidFormat;
+        }
+
+        return ErrorCode::ok;
+    }
+
+    virtual ErrorCode loadUserTranslationsFromJson(const std::wstring &trJson) const override
+    {
+        return loadUserTranslationsFromJson(umba::toUtf8(trJson));
     }
 
 
